@@ -692,6 +692,11 @@
             return clamp(canvas.height / 980, 0.46, 0.78);
         }
 
+        function getMobileFireIntervalScale() {
+            const shortScreenRatio = clamp((720 - canvas.height) / 260, 0, 1);
+            return 1 + shortScreenRatio * 0.95;
+        }
+
         function getDrawableAsset(img) {
             if (!img) return null;
             if (img.requiresCutout) {
@@ -2007,12 +2012,14 @@
             commander.x += (commander.targetX - commander.x) * commander.speed;
 
             // 2. Soldiers Follow Commander
-            const fireRateLimit = 0.45 - upgradeLevels.fireRate * 0.05;
+            const mobileFireIntervalScale = getMobileFireIntervalScale();
+            const fireRateLimit = (0.45 - upgradeLevels.fireRate * 0.05) * mobileFireIntervalScale;
             army.forEach(soldier => {
                 soldier.update(fireRateLimit);
             });
             if (gameState === 'BOSS_BATTLE' && boss.active) {
-                const commanderFireLimit = Math.max(0.18, COMMANDER_FIRE_BASE_RATE - upgradeLevels.fireRate * 0.025);
+                const commanderFireScale = 1 + (mobileFireIntervalScale - 1) * 0.45;
+                const commanderFireLimit = Math.max(0.18, COMMANDER_FIRE_BASE_RATE - upgradeLevels.fireRate * 0.025) * commanderFireScale;
                 commanderFireTimer += 0.016;
                 if (commanderFireTimer >= commanderFireLimit) {
                     commanderFireTimer = 0;
