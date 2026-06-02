@@ -663,9 +663,9 @@
         const ARMY_WEAPON_BIAS_THRESHOLD = 48;
         const COMMANDER_FIRE_BASE_RATE = 0.34;
         const COMMANDER_BULLET_COLOR = '#a3e635';
-        const GATE_READ_FRAMES = 180;
-        const GATE_COUNTDOWN_STEP_FRAMES = 42;
-        const GATE_COUNTDOWN_TOTAL_FRAMES = GATE_READ_FRAMES + GATE_COUNTDOWN_STEP_FRAMES * 3;
+        const GATE_RULE_READ_MS = 3000;
+        const GATE_COUNTDOWN_STEP_MS = 1000;
+        const GATE_COUNTDOWN_TOTAL_MS = GATE_RULE_READ_MS + GATE_COUNTDOWN_STEP_MS * 3;
 
         const bossRenderProfiles = {
             1: { widthMul: 4.05, heightMul: 4.05, glow: '#84cc16' },
@@ -1198,7 +1198,8 @@
 
         let popupTexts = [];
         let activeGates = null; 
-        let gateCountdownFrames = 0;
+        let gateCountdownRemainingMs = 0;
+        let gateCountdownLastTick = 0;
         let pendingGateDrop = false;
         let isDragging = false;
         let bossIntroTimer = null;
@@ -1630,16 +1631,16 @@
             const label = document.getElementById('gate-countdown-label');
             const problem = document.getElementById('gate-countdown-problem');
             const text = document.getElementById('gate-countdown-text');
-            if (!pendingGateDrop || gateCountdownFrames <= 0) {
+            if (!pendingGateDrop || gateCountdownRemainingMs <= 0) {
                 hideGateCountdown();
                 return;
             }
 
-            const readFrames = gateCountdownFrames - GATE_COUNTDOWN_STEP_FRAMES * 3;
+            const readMs = gateCountdownRemainingMs - GATE_COUNTDOWN_STEP_MS * 3;
             const ruleText = sequence.ruleDescription || '규칙을 확인하세요';
 
             problem.innerText = ruleText;
-            if (readFrames > 0) {
+            if (readMs > 0) {
                 label.innerText = '규칙 확인';
                 problem.classList.remove('hidden', 'text-base', 'md:text-lg', 'text-amber-300');
                 problem.classList.add('text-2xl', 'md:text-3xl', 'text-amber-200');
@@ -1647,7 +1648,7 @@
             } else {
                 label.innerText = '관문 투입';
                 problem.classList.add('hidden');
-                text.innerText = Math.max(1, Math.ceil(gateCountdownFrames / GATE_COUNTDOWN_STEP_FRAMES));
+                text.innerText = Math.max(1, Math.ceil(gateCountdownRemainingMs / GATE_COUNTDOWN_STEP_MS));
                 text.classList.remove('hidden');
             }
 
@@ -1658,7 +1659,8 @@
         function scheduleGateDrop(withStagePreview = false) {
             activeGates = null;
             pendingGateDrop = false;
-            gateCountdownFrames = 0;
+            gateCountdownRemainingMs = 0;
+            gateCountdownLastTick = 0;
 
             if (!withStagePreview) {
                 hideGateCountdown();
@@ -1667,7 +1669,8 @@
             }
 
             pendingGateDrop = true;
-            gateCountdownFrames = GATE_COUNTDOWN_TOTAL_FRAMES;
+            gateCountdownRemainingMs = GATE_COUNTDOWN_TOTAL_MS;
+            gateCountdownLastTick = performance.now();
             updateGateCountdownBanner();
         }
 
@@ -1744,7 +1747,8 @@
             gameState = 'BOSS_WARNING';
             audio.playExplode();
             pendingGateDrop = false;
-            gateCountdownFrames = 0;
+            gateCountdownRemainingMs = 0;
+            gateCountdownLastTick = 0;
             hideGateCountdown();
             
             document.getElementById('hud-sequence-section').classList.add('hidden');
@@ -1817,7 +1821,8 @@
             popupTexts = [];
             activeGates = null;
             pendingGateDrop = false;
-            gateCountdownFrames = 0;
+            gateCountdownRemainingMs = 0;
+            gateCountdownLastTick = 0;
             hideGateCountdown();
             isDragging = false;
             resetBossState();
@@ -1981,7 +1986,8 @@
             popupTexts = [];
             activeGates = null;
             pendingGateDrop = false;
-            gateCountdownFrames = 0;
+            gateCountdownRemainingMs = 0;
+            gateCountdownLastTick = 0;
             hideGateCountdown();
             isDragging = false;
             weaponLevel = 1; 
@@ -2109,10 +2115,15 @@
             // 3. RUNNING PHASE (이지선다 관문 통과)
             if (gameState === 'RUNNING') {
                 if (pendingGateDrop) {
-                    gateCountdownFrames--;
-                    if (gateCountdownFrames <= 0) {
+                    const now = performance.now();
+                    const elapsedMs = Math.min(250, now - gateCountdownLastTick);
+                    gateCountdownLastTick = now;
+                    gateCountdownRemainingMs -= elapsedMs;
+
+                    if (gateCountdownRemainingMs <= 0) {
                         pendingGateDrop = false;
-                        gateCountdownFrames = 0;
+                        gateCountdownRemainingMs = 0;
+                        gateCountdownLastTick = 0;
                         hideGateCountdown();
                         spawnGates();
                     } else {
