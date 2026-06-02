@@ -340,6 +340,12 @@
             <div class="text-lg font-black tracking-tight text-white">BOSS ENCOUNTER</div>
         </div>
 
+        <div id="gate-countdown-banner" class="absolute top-[34%] left-1/2 -translate-x-1/2 w-[min(92%,390px)] bg-black/88 border-2 border-amber-400 text-amber-100 py-4 px-6 rounded-xl font-orbitron text-center shadow-[0_0_24px_rgba(245,158,11,0.55)] transform scale-0 transition-all duration-200 z-10 pointer-events-none">
+            <div id="gate-countdown-label" class="text-[10px] font-black uppercase tracking-widest text-lime-300 mb-1">규칙 확인</div>
+            <div id="gate-countdown-problem" class="text-2xl md:text-3xl font-black tracking-tight text-amber-200 leading-tight">등차수열 (공차 +2)</div>
+            <div id="gate-countdown-text" class="hidden text-4xl font-black tracking-tight text-white mt-1">3</div>
+        </div>
+
         <!-- 메인 드로잉 캔버스 -->
         <canvas id="gameCanvas" class="w-full flex-grow block"></canvas>
 
@@ -657,6 +663,9 @@
         const ARMY_WEAPON_BIAS_THRESHOLD = 48;
         const COMMANDER_FIRE_BASE_RATE = 0.34;
         const COMMANDER_BULLET_COLOR = '#a3e635';
+        const GATE_READ_FRAMES = 180;
+        const GATE_COUNTDOWN_STEP_FRAMES = 42;
+        const GATE_COUNTDOWN_TOTAL_FRAMES = GATE_READ_FRAMES + GATE_COUNTDOWN_STEP_FRAMES * 3;
 
         const bossRenderProfiles = {
             1: { widthMul: 4.05, heightMul: 4.05, glow: '#84cc16' },
@@ -1189,6 +1198,8 @@
 
         let popupTexts = [];
         let activeGates = null; 
+        let gateCountdownFrames = 0;
+        let pendingGateDrop = false;
         let isDragging = false;
         let bossIntroTimer = null;
 
@@ -1608,6 +1619,58 @@
             };
         }
 
+        function hideGateCountdown() {
+            const banner = document.getElementById('gate-countdown-banner');
+            banner.classList.remove('scale-100');
+            banner.classList.add('scale-0');
+        }
+
+        function updateGateCountdownBanner() {
+            const banner = document.getElementById('gate-countdown-banner');
+            const label = document.getElementById('gate-countdown-label');
+            const problem = document.getElementById('gate-countdown-problem');
+            const text = document.getElementById('gate-countdown-text');
+            if (!pendingGateDrop || gateCountdownFrames <= 0) {
+                hideGateCountdown();
+                return;
+            }
+
+            const readFrames = gateCountdownFrames - GATE_COUNTDOWN_STEP_FRAMES * 3;
+            const ruleText = sequence.ruleDescription || '규칙을 확인하세요';
+
+            problem.innerText = ruleText;
+            if (readFrames > 0) {
+                label.innerText = '규칙 확인';
+                problem.classList.remove('hidden', 'text-base', 'md:text-lg', 'text-amber-300');
+                problem.classList.add('text-2xl', 'md:text-3xl', 'text-amber-200');
+                text.classList.add('hidden');
+            } else {
+                label.innerText = '관문 투입';
+                problem.classList.add('hidden');
+                text.innerText = Math.max(1, Math.ceil(gateCountdownFrames / GATE_COUNTDOWN_STEP_FRAMES));
+                text.classList.remove('hidden');
+            }
+
+            banner.classList.remove('scale-0');
+            banner.classList.add('scale-100');
+        }
+
+        function scheduleGateDrop(withStagePreview = false) {
+            activeGates = null;
+            pendingGateDrop = false;
+            gateCountdownFrames = 0;
+
+            if (!withStagePreview) {
+                hideGateCountdown();
+                spawnGates();
+                return;
+            }
+
+            pendingGateDrop = true;
+            gateCountdownFrames = GATE_COUNTDOWN_TOTAL_FRAMES;
+            updateGateCountdownBanner();
+        }
+
         function getRandomGateEffect(isCorrect) {
             if (isCorrect) {
                 const currentArmyCount = army.length;
@@ -1680,6 +1743,9 @@
         function triggerBossBattle() {
             gameState = 'BOSS_WARNING';
             audio.playExplode();
+            pendingGateDrop = false;
+            gateCountdownFrames = 0;
+            hideGateCountdown();
             
             document.getElementById('hud-sequence-section').classList.add('hidden');
 
@@ -1750,6 +1816,9 @@
             particles = [];
             popupTexts = [];
             activeGates = null;
+            pendingGateDrop = false;
+            gateCountdownFrames = 0;
+            hideGateCountdown();
             isDragging = false;
             resetBossState();
             boss.hp = 300;
@@ -1911,6 +1980,9 @@
             particles = [];
             popupTexts = [];
             activeGates = null;
+            pendingGateDrop = false;
+            gateCountdownFrames = 0;
+            hideGateCountdown();
             isDragging = false;
             weaponLevel = 1; 
             shakeTimer = 0;
@@ -1930,7 +2002,7 @@
             addSoldiers(startUnitCount);
 
             generateSequenceForStage();
-            spawnGates();
+            scheduleGateDrop(true);
 
             document.getElementById('menu-screen').classList.add('hidden');
             document.getElementById('result-screen').classList.add('hidden');
@@ -2036,6 +2108,18 @@
 
             // 3. RUNNING PHASE (이지선다 관문 통과)
             if (gameState === 'RUNNING') {
+                if (pendingGateDrop) {
+                    gateCountdownFrames--;
+                    if (gateCountdownFrames <= 0) {
+                        pendingGateDrop = false;
+                        gateCountdownFrames = 0;
+                        hideGateCountdown();
+                        spawnGates();
+                    } else {
+                        updateGateCountdownBanner();
+                    }
+                }
+
                 if (activeGates) {
                     activeGates.y += roadSpeed * getPlayfieldSpeedScale();
                     
@@ -2069,8 +2153,7 @@
                                 activeGates = null;
                                 triggerBossBattle();
                             } else {
-                                activeGates.y = -100;
-                                spawnGates();
+                                scheduleGateDrop();
                             }
                         } else {
                             audio.playGateWrong();
@@ -2094,14 +2177,13 @@
                                 activeGates = null;
                                 triggerBossBattle();
                             } else {
-                                activeGates.y = -100;
-                                spawnGates();
+                                scheduleGateDrop();
                             }
                         }
                     }
 
                     if (activeGates && activeGates.y > canvas.height + 50) {
-                        spawnGates();
+                        scheduleGateDrop();
                     }
                 }
             }
