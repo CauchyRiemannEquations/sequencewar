@@ -1,0 +1,2829 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>시퀀스 워: 라스트 스탠드 (Sequence War: Last Stand)</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Noto+Sans+KR:wght@400;700;900&display=swap');
+        body {
+            font-family: 'Noto Sans KR', sans-serif;
+            background:
+                radial-gradient(circle at 50% 18%, rgba(245, 158, 11, 0.16), transparent 28%),
+                radial-gradient(circle at 18% 82%, rgba(132, 204, 22, 0.13), transparent 24%),
+                linear-gradient(135deg, #050505 0%, #17110a 42%, #070605 100%);
+            user-select: none;
+            -webkit-user-select: none;
+            overflow: hidden;
+        }
+        body::before {
+            content: "";
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            background:
+                linear-gradient(rgba(255, 255, 255, 0.025) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255, 255, 255, 0.018) 1px, transparent 1px);
+            background-size: 42px 42px;
+            mask-image: radial-gradient(circle at center, black, transparent 78%);
+        }
+        .font-orbitron {
+            font-family: 'Orbitron', sans-serif;
+        }
+        .neon-glow-military {
+            box-shadow: 0 0 26px rgba(245, 158, 11, 0.44), 0 18px 70px rgba(0, 0, 0, 0.75);
+            border-color: #f59e0b;
+        }
+        .battle-shell::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            z-index: 1;
+            pointer-events: none;
+            background:
+                radial-gradient(circle at 50% 0%, rgba(245, 158, 11, 0.12), transparent 36%),
+                linear-gradient(90deg, rgba(0,0,0,0.28), transparent 22%, transparent 78%, rgba(0,0,0,0.28));
+            mix-blend-mode: screen;
+            opacity: 0.65;
+        }
+        #menu-screen,
+        #result-screen {
+            background:
+                radial-gradient(circle at 50% 16%, rgba(245, 158, 11, 0.22), transparent 28%),
+                radial-gradient(circle at 50% 96%, rgba(15, 23, 42, 0.95), transparent 46%),
+                linear-gradient(180deg, rgba(12, 10, 8, 0.96), rgba(28, 19, 10, 0.94) 54%, rgba(3, 7, 18, 0.98)) !important;
+            backdrop-filter: blur(2px);
+        }
+        #menu-screen::before,
+        #result-screen::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            pointer-events: none;
+            background:
+                linear-gradient(90deg, transparent 0 18%, rgba(245, 158, 11, 0.12) 18.5%, transparent 19%, transparent 81%, rgba(245, 158, 11, 0.12) 81.5%, transparent 82%),
+                repeating-linear-gradient(0deg, rgba(255,255,255,0.04) 0 2px, transparent 2px 34px),
+                radial-gradient(circle at 20% 28%, rgba(132, 204, 22, 0.14), transparent 22%),
+                radial-gradient(circle at 82% 72%, rgba(239, 68, 68, 0.13), transparent 24%);
+            opacity: 0.76;
+        }
+        #menu-screen::after,
+        #result-screen::after {
+            content: "";
+            position: absolute;
+            inset: auto 10% 9% 10%;
+            height: 24%;
+            border-radius: 999px;
+            pointer-events: none;
+            background: radial-gradient(ellipse at center, rgba(245, 158, 11, 0.16), transparent 70%);
+            filter: blur(18px);
+        }
+        #menu-screen > *,
+        #result-screen > * {
+            position: relative;
+            z-index: 1;
+        }
+        .tactical-panel,
+        .result-card {
+            background: linear-gradient(145deg, rgba(12, 10, 9, 0.78), rgba(41, 37, 36, 0.56)) !important;
+            border-color: rgba(245, 158, 11, 0.36) !important;
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.06), 0 18px 40px rgba(0,0,0,0.38);
+        }
+        #menu-screen button,
+        #result-screen button {
+            box-shadow: 0 0 18px rgba(245, 158, 11, 0.18), inset 0 1px 0 rgba(255,255,255,0.08);
+        }
+        #result-screen.result-victory {
+            background:
+                radial-gradient(circle at 50% 22%, rgba(132, 204, 22, 0.28), transparent 30%),
+                linear-gradient(180deg, rgba(4, 20, 13, 0.96), rgba(28, 25, 23, 0.95) 58%, rgba(5, 7, 5, 0.99)) !important;
+        }
+        #result-screen.result-defeat {
+            background:
+                radial-gradient(circle at 50% 22%, rgba(239, 68, 68, 0.34), transparent 32%),
+                linear-gradient(180deg, rgba(24, 5, 5, 0.98), rgba(28, 19, 10, 0.95) 58%, rgba(5, 5, 5, 0.99)) !important;
+        }
+        .boss-hud-panel {
+            width: min(72%, 310px);
+            margin-left: auto;
+            background: linear-gradient(135deg, rgba(17, 24, 39, 0.88), rgba(69, 10, 10, 0.82)) !important;
+            border-color: rgba(248, 113, 113, 0.82) !important;
+            box-shadow: 0 0 20px rgba(239, 68, 68, 0.36), inset 0 1px 0 rgba(255,255,255,0.08) !important;
+        }
+        .neon-text-blue {
+            text-shadow: 0 0 10px #00f0ff, 0 0 20px #00f0ff;
+        }
+        .neon-text-green {
+            text-shadow: 0 0 10px #39ff14, 0 0 20px #39ff14;
+        }
+        .neon-text-pink {
+            text-shadow: 0 0 10px #ff007f, 0 0 20px #ff007f;
+        }
+        .neon-text-amber {
+            text-shadow: 0 0 10px #f59e0b, 0 0 20px #f59e0b;
+        }
+        /* Shake Animation Class */
+        .shake-screen {
+            animation: shake 0.2s infinite;
+        }
+        @keyframes shake {
+            0% { transform: translate(1px, 1px) rotate(0deg); }
+            10% { transform: translate(-1px, -2px) rotate(-1deg); }
+            20% { transform: translate(-3px, 0px) rotate(1deg); }
+            30% { transform: translate(0px, 2px) rotate(0deg); }
+            40% { transform: translate(1px, -1px) rotate(1deg); }
+            50% { transform: translate(-1px, 2px) rotate(-1deg); }
+            60% { transform: translate(-3px, 1px) rotate(0deg); }
+            75% { transform: translate(2px, 1px) rotate(-1deg); }
+            90% { transform: translate(-1px, -1px) rotate(1deg); }
+            100% { transform: translate(1px, 2px) rotate(0deg); }
+        }
+    </style>
+</head>
+<body class="h-screen w-screen flex flex-col items-center justify-center p-2 md:p-6 text-white overflow-hidden">
+
+    <!-- 메인 게임 가로 뷰포트 컨테이너 -->
+    <div id="game-container" class="battle-shell relative w-full max-w-md h-[95vh] max-h-[750px] bg-[#141210] border-2 border-[#f59e0b] rounded-2xl overflow-hidden neon-glow-military flex flex-col shadow-2xl">
+        
+        <!-- 상단 HUD -->
+        <div id="hud" class="absolute top-0 left-0 w-full p-4 flex flex-col gap-2 z-10 bg-gradient-to-b from-[#0c0b09] to-transparent pointer-events-none opacity-0 transition-opacity duration-300">
+            
+            <!-- [수열 모드 전용 HUD 영역] - 보스전 돌입 시 완전히 숨김처리 -->
+            <div id="hud-sequence-section" class="flex flex-col gap-2">
+                <div class="flex justify-between items-center">
+                    <div class="flex flex-col">
+                        <span class="text-[10px] text-gray-400 font-bold uppercase tracking-wider">미션 전술 수열</span>
+                        <span id="seq-rule" class="text-xs md:text-sm text-[#f59e0b] font-extrabold tracking-tight">등차수열 (+2)</span>
+                    </div>
+                    <div class="flex flex-col items-end">
+                        <span class="text-[10px] text-gray-400 font-bold">GOLD</span>
+                        <span id="gold-display" class="font-orbitron text-sm font-bold text-yellow-400"><i class="fa-solid fa-coins mr-1"></i>0</span>
+                    </div>
+                </div>
+
+                <!-- 수열 흐름 및 정답 가리기 적용 -->
+                <div class="bg-black/90 border border-amber-900/85 p-2.5 rounded-xl flex justify-between items-center pointer-events-auto">
+                    <div class="flex flex-col">
+                        <span class="text-[10px] text-gray-400 font-bold">전술 좌표를 연산하세요!</span>
+                        <span id="seq-history" class="font-orbitron text-xs md:text-sm font-bold text-amber-500">2 → 4 → 6 → ?</span>
+                    </div>
+                    <div class="text-right">
+                        <span class="text-[10px] text-amber-500 font-bold block">목표 좌표</span>
+                        <span id="seq-target" class="font-orbitron text-xl font-black text-[#f59e0b] neon-text-amber">?</span>
+                    </div>
+                </div>
+
+                <!-- 전투 진행도 프로그레스 바 -->
+                <div class="w-full bg-stone-900/60 rounded-full h-2.5 overflow-hidden border border-amber-900/30">
+                    <div id="progress-bar" class="bg-gradient-to-r from-amber-600 to-[#84cc16] h-2.5 w-[0%] transition-all duration-300"></div>
+                </div>
+            </div>
+
+            <!-- [보스 격전 전용 고정 네온 HP 바 HUD] -->
+            <div id="hud-boss-section" class="boss-hud-panel hidden flex flex-col gap-1.5 bg-black/90 border border-red-500/80 p-3 rounded-xl pointer-events-auto shadow-[0_0_15px_rgba(239,68,68,0.4)]">
+                <div class="flex justify-between items-center">
+                    <span class="text-red-500 font-black text-xs md:text-sm tracking-widest uppercase animate-pulse flex items-center gap-1.5">
+                        <i class="fa-solid fa-triangle-exclamation"></i> BOSS ADVANCING
+                    </span>
+                    <span id="boss-hp-text" class="font-orbitron text-xs font-black text-white">HP: 250 / 250</span>
+                </div>
+                <div class="w-full bg-purple-950/60 rounded-full h-3 overflow-hidden border border-red-900/50">
+                    <div id="boss-hp-bar-fill" class="bg-gradient-to-r from-red-600 to-pink-500 h-3 w-[100%] transition-all duration-75"></div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- 메인 메뉴 화면 -->
+        <div id="menu-screen" class="absolute inset-0 bg-[#0e0d0add]/95 flex flex-col items-center justify-between p-6 z-20 text-center transition-all duration-300">
+            
+            <!-- 상부 헤더 -->
+            <div class="mt-4">
+                <span class="px-3 py-1 text-[10px] font-bold text-amber-500 border border-amber-500 rounded-full tracking-widest uppercase animate-pulse">TACTICAL GROUND DEFENSE</span>
+                <h1 class="font-orbitron text-3xl md:text-4xl font-black mt-3 tracking-tighter bg-gradient-to-r from-[#f59e0b] via-[#84cc16] to-[#06b6d4] bg-clip-text text-transparent">
+                    SEQUENCE WAR
+                </h1>
+                <p class="text-[11px] text-gray-400 mt-1">지휘관과 병사들을 정렬하여 다가오는 암산 관문과 거대 보스를 구축하세요!</p>
+            </div>
+
+            <!-- 업그레이드 상점 영역 -->
+            <div class="tactical-panel w-full bg-stone-900/30 border border-amber-900/40 rounded-2xl p-4 my-4 flex flex-col gap-2.5">
+                <h3 class="text-xs font-black text-yellow-500 uppercase tracking-wider flex items-center justify-between">
+                    <span><i class="fa-solid fa-circle-arrow-up mr-1"></i> 전술 기지 보급소</span>
+                    <span id="shop-gold" class="text-yellow-400 font-orbitron"><i class="fa-solid fa-coins mr-1"></i>0</span>
+                </h3>
+                
+                <!-- 업그레이드 항목 1 -->
+                <button id="up-start-unit" class="w-full p-2.5 bg-stone-950/50 hover:bg-stone-900/40 active:scale-[0.98] border border-amber-900/30 rounded-xl flex justify-between items-center transition-all">
+                    <div class="flex items-center gap-2">
+                        <div class="w-8 h-8 rounded-lg bg-green-500/20 flex items-center justify-center text-green-400 text-sm">
+                            <i class="fa-solid fa-user-plus"></i>
+                        </div>
+                        <div class="text-left">
+                            <span class="text-xs font-bold block text-white">초기 돌격병 증원</span>
+                            <span id="desc-start-unit" class="text-[10px] text-gray-400">시작 인원: 5명</span>
+                        </div>
+                    </div>
+                    <span id="cost-start-unit" class="px-2.5 py-1 bg-yellow-500/20 text-yellow-400 text-xs font-bold rounded-lg border border-yellow-500/30">
+                        <i class="fa-solid fa-coins mr-0.5"></i> 100
+                    </span>
+                </button>
+
+                <!-- 업그레이드 항목 2 -->
+                <button id="up-fire-rate" class="w-full p-2.5 bg-stone-950/50 hover:bg-stone-900/40 active:scale-[0.98] border border-amber-900/30 rounded-xl flex justify-between items-center transition-all">
+                    <div class="flex items-center gap-2">
+                        <div class="w-8 h-8 rounded-lg bg-amber-500/20 flex items-center justify-center text-amber-400 text-sm">
+                            <i class="fa-solid fa-bolt"></i>
+                        </div>
+                        <div class="text-left">
+                            <span class="text-xs font-bold block text-white">화기 연사 속도</span>
+                            <span id="desc-fire-rate" class="text-[10px] text-gray-400">발사 대기: 0.4초</span>
+                        </div>
+                    </div>
+                    <span id="cost-fire-rate" class="px-2.5 py-1 bg-yellow-500/20 text-yellow-400 text-xs font-bold rounded-lg border border-yellow-500/30">
+                        <i class="fa-solid fa-coins mr-0.5"></i> 150
+                    </span>
+                </button>
+
+                <!-- 업그레이드 항목 3 -->
+                <button id="up-gold-gain" class="w-full p-2.5 bg-stone-950/50 hover:bg-stone-900/40 active:scale-[0.98] border border-amber-900/30 rounded-xl flex justify-between items-center transition-all">
+                    <div class="flex items-center gap-2">
+                        <div class="w-8 h-8 rounded-lg bg-yellow-500/20 flex items-center justify-center text-yellow-400 text-sm">
+                            <i class="fa-solid fa-hand-holding-dollar"></i>
+                        </div>
+                        <div class="text-left">
+                            <span class="text-xs font-bold block text-white">작전 예산 보너스</span>
+                            <span id="desc-gold-gain" class="text-[10px] text-gray-400">골드 배율: x1.0</span>
+                        </div>
+                    </div>
+                    <span id="cost-gold-gain" class="px-2.5 py-1 bg-yellow-500/20 text-yellow-400 text-xs font-bold rounded-lg border border-yellow-500/30">
+                        <i class="fa-solid fa-coins mr-0.5"></i> 200
+                    </span>
+                </button>
+            </div>
+
+            <!-- 플레이 버튼 -->
+            <div class="w-full flex flex-col gap-2 mb-4">
+                <button id="start-btn" class="w-full py-4 bg-gradient-to-r from-[#84cc16] to-[#f59e0b] text-black font-black text-lg rounded-xl shadow-[0_0_20px_rgba(245,158,11,0.4)] hover:brightness-110 active:scale-95 transition-all">
+                    작전 개시 (Stage <span id="current-stage-num">1</span>) <i class="fa-solid fa-crosshairs ml-1"></i>
+                </button>
+                <span class="text-[10px] text-gray-500"><i class="fa-solid fa-computer-mouse"></i> 사령부 부대를 조종해 전진하세요</span>
+            </div>
+        </div>
+
+        <!-- 게임오버 / 스테이지 클리어 결과 화면 -->
+        <div id="result-screen" class="absolute inset-0 bg-black/95 flex flex-col items-center justify-center p-6 z-20 text-center hidden">
+            <div id="result-icon-container" class="mb-4">
+                <i class="fa-solid fa-trophy text-6xl text-yellow-400 animate-bounce"></i>
+            </div>
+            
+            <h2 id="result-title" class="font-orbitron text-4xl font-black text-[#39ff14] mb-2 tracking-wide uppercase">
+                VICTORY
+            </h2>
+            <p id="result-desc" class="text-gray-400 text-sm mb-6">보스 격퇴 성공! 연합군 승리.</p>
+
+            <!-- 획득 전리품 정보 -->
+            <div class="result-card bg-stone-900/60 p-5 rounded-2xl border border-amber-500/30 max-w-xs w-full mb-8">
+                <div class="text-gray-400 text-xs font-bold uppercase tracking-wider mb-1">획득한 작전 예산</div>
+                <div id="reward-gold" class="font-orbitron text-3xl font-extrabold text-yellow-400 mb-4">
+                    <i class="fa-solid fa-coins mr-1"></i>+120
+                </div>
+                
+                <div class="flex justify-between text-xs text-gray-300 border-t border-amber-900/50 pt-3">
+                    <span>최종 잔존 병력</span>
+                    <span id="final-army-size" class="font-bold text-amber-500">54명</span>
+                </div>
+            </div>
+
+            <div class="flex gap-4 w-full max-w-xs">
+                <button id="result-action-btn" class="flex-1 py-3 bg-gradient-to-r from-[#84cc16] to-[#f59e0b] text-black font-black text-sm rounded-xl shadow-[0_0_15px_rgba(245,158,11,0.4)] hover:brightness-110 active:scale-95 transition-all">
+                    다음 구역으로
+                </button>
+                <button id="result-menu-btn" class="px-5 py-3 bg-stone-900/80 hover:bg-stone-800 text-white font-bold text-sm rounded-xl border border-amber-500/30 transition-all">
+                    작전 본부로
+                </button>
+            </div>
+        </div>
+
+        <!-- 게임 화면 상부 보스전 경고 배너 -->
+        <div id="boss-warning-banner" class="absolute top-1/4 left-1/2 -translate-x-1/2 bg-red-600/90 border-2 border-yellow-400 text-white py-3 px-8 rounded-xl font-orbitron text-center shadow-[0_0_25px_rgba(239,68,68,0.8)] transform scale-0 transition-all duration-300 z-10 pointer-events-none">
+            <div class="text-xs font-black uppercase tracking-widest text-yellow-300 mb-0.5"><i class="fa-solid fa-triangle-exclamation animate-pulse"></i> WARNING!</div>
+            <div class="text-lg font-black tracking-tight text-white">BOSS ENCOUNTER</div>
+        </div>
+
+        <!-- 메인 드로잉 캔버스 -->
+        <canvas id="gameCanvas" class="w-full flex-grow block"></canvas>
+
+        <!-- 하단 사운드/일시정지 보조 바 -->
+        <div class="bg-[#0c0b09] border-t border-amber-950/80 p-2.5 flex justify-between items-center z-10">
+            <div class="flex gap-2">
+                <button id="hud-pause" class="w-8 h-8 rounded-lg bg-stone-950/60 hover:bg-stone-900 border border-amber-900/40 flex items-center justify-center text-gray-400 hover:text-white transition-all">
+                    <i class="fa-solid fa-pause text-xs"></i>
+                </button>
+                <button id="hud-mute" class="w-8 h-8 rounded-lg bg-stone-950/60 hover:bg-stone-900 border border-amber-900/40 flex items-center justify-center text-gray-400 hover:text-white transition-all">
+                    <i id="mute-icon" class="fa-solid fa-volume-high text-xs"></i>
+                </button>
+            </div>
+            <div class="text-[10px] text-gray-400 flex items-center gap-1">
+                <span id="army-size-text" class="text-amber-500 font-bold font-orbitron">ARMY: 0</span>
+                <span class="text-gray-600">|</span>
+                <span id="weapon-lvl-display" class="text-green-500 font-bold font-orbitron">WEAPON: LV.1</span>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- 커스텀 알림 모달 -->
+    <div id="custom-alert" class="fixed inset-0 bg-black/80 flex items-center justify-center p-4 z-50 transition-opacity duration-200 opacity-0 pointer-events-none">
+        <div class="bg-[#12052c] border-2 border-pink-500 rounded-2xl max-w-xs w-full p-5 text-center shadow-[0_0_20px_rgba(255,0,127,0.4)]">
+            <i class="fa-solid fa-coins text-4xl text-yellow-400 mb-2"></i>
+            <h4 class="text-base font-black text-white mb-1">골드가 부족합니다!</h4>
+            <p class="text-xs text-gray-400 mb-4 leading-relaxed">수열 관문을 통과하고 보스를 쓰러트려 골드를 획득하세요.</p>
+            <button id="alert-close" class="px-6 py-2 bg-pink-600 hover:bg-pink-500 text-white font-bold text-xs rounded-lg transition-all">
+                확인
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // 전술 리소스 이미지 정의 및 로드
+        const imageAssets = {
+            bg: 'background.jpg',
+            bossLaser: 'boss-laser.png',
+            playerBullet: 'player-bullet.png',
+            commander: 'commander.png',
+            soldier: 'soldier.png',
+            bosses: [
+                'boss-stage-1.png',
+                'boss-stage-2.png',
+                'boss-stage-3.png',
+                'boss-stage-4.png',
+                'boss-stage-5.png',
+                'boss-stage-6.png',
+                'boss-stage-7.png',
+                'boss-stage-8.png',
+                'boss-stage-9.png',
+                'boss-stage-10.png'
+            ]
+        };
+        const TOTAL_ROUNDS = Math.max(1, imageAssets.bosses.length);
+
+        const processedCutouts = new WeakMap();
+
+        function loadTacticalImage(src, options = {}) {
+            const img = new Image();
+            img.requiresCutout = Boolean(options.removeBackground);
+            img.onerror = () => console.warn(`[Sequence War] 이미지 자산을 찾을 수 없습니다: ${src}`);
+            img.onload = () => {
+                if (options.removeBackground) {
+                    try {
+                        processedCutouts.set(img, createBackgroundCutout(img, options));
+                    } catch (error) {
+                        img.requiresCutout = false;
+                        console.warn(`[Sequence War] 이미지 배경 제거 실패: ${src}`, error);
+                    }
+                }
+            };
+            img.src = src;
+            return img;
+        }
+
+        function colorDistanceSq(r1, g1, b1, r2, g2, b2) {
+            const dr = r1 - r2;
+            const dg = g1 - g2;
+            const db = b1 - b2;
+            return dr * dr + dg * dg + db * db;
+        }
+
+        function createBackgroundCutout(img, options = {}) {
+            const sourceCanvas = document.createElement('canvas');
+            const w = img.naturalWidth;
+            const h = img.naturalHeight;
+            sourceCanvas.width = w;
+            sourceCanvas.height = h;
+
+            const sourceCtx = sourceCanvas.getContext('2d', { willReadFrequently: true });
+            sourceCtx.drawImage(img, 0, 0);
+
+            const imageData = sourceCtx.getImageData(0, 0, w, h);
+            const data = imageData.data;
+            const tolerance = options.tolerance || 58;
+            const toleranceSq = tolerance * tolerance;
+            const palette = [];
+            const step = Math.max(8, Math.floor(Math.min(w, h) / 56));
+
+            function addPalettePixel(x, y) {
+                const i = (y * w + x) * 4;
+                if (data[i + 3] > 16) {
+                    palette.push([data[i], data[i + 1], data[i + 2]]);
+                }
+            }
+
+            for (let x = 0; x < w; x += step) {
+                addPalettePixel(x, 0);
+                addPalettePixel(x, h - 1);
+            }
+            for (let y = 0; y < h; y += step) {
+                addPalettePixel(0, y);
+                addPalettePixel(w - 1, y);
+            }
+            palette.push(
+                [data[0], data[1], data[2]],
+                [data[(w - 1) * 4], data[(w - 1) * 4 + 1], data[(w - 1) * 4 + 2]],
+                [data[((h - 1) * w) * 4], data[((h - 1) * w) * 4 + 1], data[((h - 1) * w) * 4 + 2]],
+                [data[(h * w - 1) * 4], data[(h * w - 1) * 4 + 1], data[(h * w - 1) * 4 + 2]]
+            );
+
+            const compactPalette = [];
+            const paletteStep = Math.max(1, Math.ceil(palette.length / 64));
+            for (let i = 0; i < palette.length; i += paletteStep) {
+                compactPalette.push(palette[i]);
+            }
+
+            function isLikelyBackground(idx) {
+                const base = idx * 4;
+                const a = data[base + 3];
+                if (a < 24) return true;
+
+                const r = data[base];
+                const g = data[base + 1];
+                const b = data[base + 2];
+                const max = Math.max(r, g, b);
+                const min = Math.min(r, g, b);
+                const saturation = max - min;
+                const luma = (r * 0.299) + (g * 0.587) + (b * 0.114);
+
+                if (saturation < 10 && luma > 168 && luma < 238) return true;
+                for (const [pr, pg, pb] of compactPalette) {
+                    if (colorDistanceSq(r, g, b, pr, pg, pb) <= toleranceSq) return true;
+                }
+                return false;
+            }
+
+            const visited = new Uint8Array(w * h);
+            const queue = new Int32Array(w * h);
+            let head = 0;
+            let tail = 0;
+
+            function enqueue(idx) {
+                if (idx < 0 || idx >= visited.length || visited[idx] || !isLikelyBackground(idx)) return;
+                visited[idx] = 1;
+                queue[tail++] = idx;
+            }
+
+            for (let x = 0; x < w; x++) {
+                enqueue(x);
+                enqueue((h - 1) * w + x);
+            }
+            for (let y = 0; y < h; y++) {
+                enqueue(y * w);
+                enqueue(y * w + w - 1);
+            }
+
+            while (head < tail) {
+                const idx = queue[head++];
+                const x = idx % w;
+                const y = Math.floor(idx / w);
+                if (x > 0) enqueue(idx - 1);
+                if (x < w - 1) enqueue(idx + 1);
+                if (y > 0) enqueue(idx - w);
+                if (y < h - 1) enqueue(idx + w);
+            }
+
+            for (let idx = 0; idx < visited.length; idx++) {
+                if (visited[idx]) {
+                    data[idx * 4 + 3] = 0;
+                }
+            }
+
+            for (let y = 1; y < h - 1; y++) {
+                for (let x = 1; x < w - 1; x++) {
+                    const idx = y * w + x;
+                    if (visited[idx]) continue;
+                    const touchesRemoved =
+                        visited[idx - 1] || visited[idx + 1] || visited[idx - w] || visited[idx + w];
+                    if (!touchesRemoved) continue;
+
+                    const base = idx * 4;
+                    const max = Math.max(data[base], data[base + 1], data[base + 2]);
+                    const min = Math.min(data[base], data[base + 1], data[base + 2]);
+                    if (max - min < 34) {
+                        data[base + 3] = Math.floor(data[base + 3] * 0.46);
+                    }
+                }
+            }
+
+            sourceCtx.putImageData(imageData, 0, 0);
+            return sourceCanvas;
+        }
+
+        const imgBossLaser = loadTacticalImage(imageAssets.bossLaser);
+        const imgPlayerBullet = loadTacticalImage(imageAssets.playerBullet);
+        const imgCommander = loadTacticalImage(imageAssets.commander);
+        const imgSoldier = loadTacticalImage(imageAssets.soldier);
+
+        // 라운드별 각기 다른 고유형 보스 이미지 로드
+        const imgBossStages = imageAssets.bosses.map(src => loadTacticalImage(src));
+
+        // --- WEBAUDIO EFFECT SYNTHESIZER ---
+        class WebAudioSynth {
+            constructor() {
+                this.ctx = null;
+                this.muted = false;
+            }
+            init() {
+                if (!this.ctx) {
+                    this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+                }
+            }
+            playGateCorrect() {
+                if (this.muted) return; this.init();
+                const now = this.ctx.currentTime;
+                const notes = [440, 554.37, 659.25, 880];
+                notes.forEach((f, i) => {
+                    const osc = this.ctx.createOscillator();
+                    const gain = this.ctx.createGain();
+                    osc.type = 'triangle';
+                    osc.frequency.setValueAtTime(f, now + i * 0.05);
+                    gain.gain.setValueAtTime(0.08, now + i * 0.05);
+                    gain.gain.exponentialRampToValueAtTime(0.001, now + i * 0.05 + 0.15);
+                    osc.connect(gain);
+                    gain.connect(this.ctx.destination);
+                    osc.start(now + i * 0.05);
+                    osc.stop(now + i * 0.05 + 0.15);
+                });
+            }
+            playGateWrong() {
+                if (this.muted) return; this.init();
+                const osc = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+                osc.type = 'sawtooth';
+                osc.frequency.setValueAtTime(140, this.ctx.currentTime);
+                osc.frequency.linearRampToValueAtTime(70, this.ctx.currentTime + 0.3);
+                gain.gain.setValueAtTime(0.15, this.ctx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.3);
+                osc.connect(gain);
+                gain.connect(this.ctx.destination);
+                osc.start();
+                osc.stop(this.ctx.currentTime + 0.3);
+            }
+            playLaser() {
+                if (this.muted) return; this.init();
+                const osc = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(800, this.ctx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(150, this.ctx.currentTime + 0.08);
+                gain.gain.setValueAtTime(0.02, this.ctx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.08);
+                osc.connect(gain);
+                gain.connect(this.ctx.destination);
+                osc.start();
+                osc.stop(this.ctx.currentTime + 0.08);
+            }
+            playExplode() {
+                if (this.muted) return; this.init();
+                const osc = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+                osc.type = 'triangle';
+                osc.frequency.setValueAtTime(120, this.ctx.currentTime);
+                osc.frequency.linearRampToValueAtTime(10, this.ctx.currentTime + 0.4);
+                gain.gain.setValueAtTime(0.2, this.ctx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.4);
+                osc.connect(gain);
+                gain.connect(this.ctx.destination);
+                osc.start();
+                osc.stop(this.ctx.currentTime + 0.4);
+            }
+            playUpgrade() {
+                if (this.muted) return; this.init();
+                const now = this.ctx.currentTime;
+                const osc = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(300, now);
+                osc.frequency.exponentialRampToValueAtTime(1000, now + 0.2);
+                gain.gain.setValueAtTime(0.1, now);
+                gain.gain.exponentialRampToValueAtTime(0.001, now + 0.2);
+                osc.connect(gain);
+                gain.connect(this.ctx.destination);
+                osc.start();
+                osc.stop(now + 0.2);
+            }
+        }
+        const audio = new WebAudioSynth();
+
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        ctx.imageSmoothingEnabled = true;
+        ctx.imageSmoothingQuality = 'high';
+
+        const COMMANDER_RENDER_SCALE = 1.95;
+        const SOLDIER_RENDER_SCALE = 1.72;
+        const PLAYER_BULLET_ROTATION_OFFSET = 0;
+        const BOSS_BULLET_ROTATION_OFFSET = Math.PI;
+        const BOSS_WARNING_DISTANCE = 200;
+        const COMMANDER_BOTTOM_OFFSET = 150;
+        const MAX_ARMY_CAP = 64;
+        const ARMY_WEAPON_BIAS_THRESHOLD = 48;
+        const COMMANDER_FIRE_BASE_RATE = 0.34;
+        const COMMANDER_BULLET_COLOR = '#a3e635';
+
+        const bossRenderProfiles = {
+            1: { widthMul: 4.05, heightMul: 4.05, glow: '#84cc16' },
+            2: { widthMul: 4.25, heightMul: 4.25, glow: '#c084fc' },
+            3: { widthMul: 3.95, heightMul: 3.95, glow: '#f97316' },
+            4: { widthMul: 4.35, heightMul: 3.75, glow: '#ef4444' },
+            5: { widthMul: 4.45, heightMul: 4.05, glow: '#f43f5e' },
+            6: { widthMul: 4.45, heightMul: 4.45, glow: '#a855f7' },
+            7: { widthMul: 4.18, heightMul: 4.18, glow: '#84cc16' },
+            8: { widthMul: 4.05, heightMul: 4.05, glow: '#fb923c' },
+            9: { widthMul: 4.7, heightMul: 4.0, glow: '#ef4444' },
+            10: { widthMul: 4.5, heightMul: 4.35, glow: '#f97316' }
+        };
+
+        function clamp(value, min, max) {
+            return Math.max(min, Math.min(max, value));
+        }
+
+        function getDrawableAsset(img) {
+            if (!img) return null;
+            if (img.requiresCutout) {
+                return processedCutouts.get(img) || (img.complete && img.naturalWidth > 0 ? img : null);
+            }
+            return img;
+        }
+
+        function getDrawableSize(drawable) {
+            if (!drawable) return { width: 0, height: 0 };
+            return {
+                width: drawable.naturalWidth || drawable.width || 0,
+                height: drawable.naturalHeight || drawable.height || 0
+            };
+        }
+
+        function isImageReady(img) {
+            const drawable = getDrawableAsset(img);
+            const { width, height } = getDrawableSize(drawable);
+            return Boolean(drawable && width > 0 && height > 0);
+        }
+
+        function drawNaturalImageCentered(img, x, y, maxW, maxH, options = {}) {
+            const drawable = getDrawableAsset(img);
+            if (!drawable) return false;
+
+            const { width, height } = getDrawableSize(drawable);
+            if (!width || !height) return false;
+
+            const scale = Math.min(maxW / width, maxH / height) * (options.scale || 1);
+            const drawW = width * scale;
+            const drawH = height * scale;
+
+            ctx.save();
+            ctx.imageSmoothingEnabled = true;
+            ctx.imageSmoothingQuality = 'high';
+            if (options.alpha !== undefined) ctx.globalAlpha = options.alpha;
+            if (options.shadowColor) {
+                ctx.shadowColor = options.shadowColor;
+                ctx.shadowBlur = options.shadowBlur || 18;
+            }
+            ctx.translate(x, y);
+            ctx.rotate(options.rotation || 0);
+            ctx.scale(options.scaleX || 1, options.scaleY || 1);
+            ctx.drawImage(drawable, -drawW / 2, -drawH / 2, drawW, drawH);
+            ctx.restore();
+            return true;
+        }
+
+        function getBossRenderProfile() {
+            return bossRenderProfiles[Math.min(currentStage, TOTAL_ROUNDS)] || bossRenderProfiles[TOTAL_ROUNDS];
+        }
+
+        function getBossGameplayRadius() {
+            if (currentStage === 1) return 56;
+            if (currentStage === 2) return 58;
+            if (currentStage === 3) return 60;
+            if (currentStage === 4) return 64;
+            if (currentStage === 5) return 66;
+            if (currentStage === 6) return 68;
+            if (currentStage === 7) return 70;
+            if (currentStage === 8) return 72;
+            if (currentStage === 9) return 74;
+            return 78;
+        }
+
+        function getBossRenderBox() {
+            const profile = getBossRenderProfile();
+            return {
+                width: Math.min(canvas.width * 0.92, boss.radius * profile.widthMul),
+                height: Math.min(canvas.height * 0.42, boss.radius * profile.heightMul)
+            };
+        }
+
+        function getBossMotionProfile() {
+            const profiles = {
+                1: { entrySpeed: 4.8, advanceMul: 0.92, xAmp: 4.5, yAmp: 4.8, rotAmp: 0.042, scaleAmp: 0.012, stomp: 1.15 },
+                2: { entrySpeed: 3.6, advanceMul: 0.78, xAmp: 7.5, yAmp: 7.2, rotAmp: 0.026, scaleAmp: 0.018, stomp: 0.62 },
+                3: { entrySpeed: 5.5, advanceMul: 0.86, xAmp: 3.2, yAmp: 6.6, rotAmp: 0.02, scaleAmp: 0.01, stomp: 1.55 },
+                4: { entrySpeed: 4.1, advanceMul: 0.82, xAmp: 5.6, yAmp: 3.2, rotAmp: 0.016, scaleAmp: 0.014, stomp: 1.0 },
+                5: { entrySpeed: 5.0, advanceMul: 0.84, xAmp: 4.0, yAmp: 5.4, rotAmp: 0.038, scaleAmp: 0.012, stomp: 1.28 },
+                6: { entrySpeed: 4.4, advanceMul: 0.78, xAmp: 8.0, yAmp: 6.0, rotAmp: 0.05, scaleAmp: 0.015, stomp: 0.86 },
+                7: { entrySpeed: 3.4, advanceMul: 0.72, xAmp: 5.2, yAmp: 7.8, rotAmp: 0.022, scaleAmp: 0.02, stomp: 0.72 },
+                8: { entrySpeed: 5.7, advanceMul: 0.9, xAmp: 7.4, yAmp: 5.6, rotAmp: 0.032, scaleAmp: 0.013, stomp: 1.35 },
+                9: { entrySpeed: 3.8, advanceMul: 0.66, xAmp: 3.0, yAmp: 4.0, rotAmp: 0.014, scaleAmp: 0.022, stomp: 0.58 },
+                10: { entrySpeed: 4.0, advanceMul: 0.56, xAmp: 4.6, yAmp: 5.0, rotAmp: 0.02, scaleAmp: 0.018, stomp: 0.7 }
+            };
+            return profiles[Math.min(currentStage, TOTAL_ROUNDS)] || profiles[TOTAL_ROUNDS];
+        }
+
+        function getBossMarchPose() {
+            const profile = getBossMotionProfile();
+            const phase = (boss.battleFrame || frameCount) * (0.092 + Math.min(currentStage, TOTAL_ROUNDS) * 0.01) + boss.strideSeed;
+            const rawFootfall = Math.abs(Math.sin(phase));
+            const footfall = Math.pow(rawFootfall, profile.stomp);
+            const entryT = clamp((boss.spawnTargetY - boss.y) / Math.max(1, Math.abs(boss.spawnTargetY - boss.introStartY)), 0, 1);
+            const swagger = Math.sin(phase * 0.5);
+            const stageStyle = Math.min(currentStage, TOTAL_ROUNDS);
+
+            let x = swagger * profile.xAmp;
+            let y = Math.sin(phase) * profile.yAmp;
+            let rotation = Math.sin(phase) * profile.rotAmp;
+
+            if (stageStyle === 2) {
+                y += Math.sin(phase * 0.32) * 5.5;
+                rotation += Math.sin(phase * 0.22) * 0.018;
+            } else if (stageStyle === 3) {
+                y += footfall * 7.5;
+                rotation += Math.sign(Math.sin(phase)) * 0.012;
+            } else if (stageStyle === 4) {
+                x += Math.sin(phase * 1.35) * 3.2;
+                y += Math.sin(phase * 1.7) * 2.2;
+            } else if (stageStyle >= 5) {
+                y += footfall * 5.8;
+                rotation += Math.sin(phase * 0.35) * 0.018;
+            }
+
+            x += Math.sin(entryT * Math.PI * 3) * entryT * 18;
+            y -= entryT * 18;
+            rotation += Math.sin(entryT * Math.PI * 2) * entryT * 0.12;
+
+            return {
+                phase,
+                x,
+                y,
+                rotation,
+                scaleX: 1 + Math.sin(phase) * profile.scaleAmp + entryT * 0.04,
+                scaleY: 1 - footfall * profile.scaleAmp * 1.15 - entryT * 0.025,
+                footfall
+            };
+        }
+
+        function getBossLaserTuning() {
+            const stage = Math.min(currentStage, TOTAL_ROUNDS);
+            if (stage === 2) {
+                return {
+                    chargeFrames: 78,
+                    activeFrames: 26,
+                    visualWidth: 22,
+                    lethalWidth: 5,
+                    commanderPenalty: 0.18,
+                    shake: 10
+                };
+            }
+            if (stage >= TOTAL_ROUNDS) {
+                return {
+                    chargeFrames: 28,
+                    activeFrames: 54,
+                    visualWidth: 64,
+                    lethalWidth: 18,
+                    commanderPenalty: 0.68,
+                    shake: 26
+                };
+            }
+            if (stage >= 5) {
+                return {
+                    chargeFrames: Math.max(34, 56 - stage * 3),
+                    activeFrames: Math.min(42, 28 + stage * 2),
+                    visualWidth: Math.min(54, 30 + stage * 4),
+                    lethalWidth: Math.min(15, 7 + stage * 1.2),
+                    commanderPenalty: Math.min(0.46, 0.22 + stage * 0.045),
+                    shake: Math.min(20, 10 + stage * 2)
+                };
+            }
+
+            return {
+                chargeFrames: Math.max(34, 66 - stage * 6),
+                activeFrames: Math.max(30, 48 - stage * 2),
+                visualWidth: Math.min(46, 23 + stage * 4),
+                lethalWidth: Math.min(13, 5 + stage * 1.8),
+                commanderPenalty: Math.min(0.36, 0.18 + stage * 0.05),
+                shake: Math.min(16, 9 + stage * 2)
+            };
+        }
+
+        function getBossHpForStage() {
+            const hpByStage = [0, 720, 1050, 1450, 2050, 3100, 4700, 6900, 9800, 14000, 62000];
+            return hpByStage[Math.min(currentStage, TOTAL_ROUNDS)] || 62000;
+        }
+
+        function getFinalBossLaserDelay() {
+            return 0.42 + Math.random() * 1.05;
+        }
+
+        function shootCommanderWeapon() {
+            const dmgScale = 1 + upgradeLevels.fireRate * 0.18;
+            const coreDamage = (5.5 + weaponLevel * 1.45) * dmgScale;
+            const startY = commander.y - commander.radius * 0.75;
+
+            bullets.push({
+                x: commander.x,
+                y: startY,
+                vx: 0,
+                vy: -15.5,
+                damage: coreDamage,
+                size: 10,
+                angle: -Math.PI / 2,
+                color: COMMANDER_BULLET_COLOR,
+                commander: true
+            });
+
+            if (weaponLevel >= 3) {
+                bullets.push({
+                    x: commander.x - 7,
+                    y: startY + 2,
+                    vx: -1.2,
+                    vy: -14.2,
+                    damage: coreDamage * 0.45,
+                    size: 7,
+                    angle: Math.atan2(-14.2, -1.2),
+                    color: '#67e8f9',
+                    commander: true
+                });
+                bullets.push({
+                    x: commander.x + 7,
+                    y: startY + 2,
+                    vx: 1.2,
+                    vy: -14.2,
+                    damage: coreDamage * 0.45,
+                    size: 7,
+                    angle: Math.atan2(-14.2, 1.2),
+                    color: '#67e8f9',
+                    commander: true
+                });
+            }
+
+            if (weaponLevel >= 5) {
+                bullets.push({
+                    x: commander.x,
+                    y: startY + 4,
+                    vx: 0,
+                    vy: -12.8,
+                    damage: coreDamage * 0.62,
+                    size: 8,
+                    angle: -Math.PI / 2,
+                    color: '#facc15',
+                    commander: true
+                });
+            }
+
+            audio.playLaser();
+        }
+
+        function spawnBossProjectile(angle, speed, options = {}) {
+            const radius = options.radius || 8;
+            bossBullets.push({
+                x: options.x ?? boss.x,
+                y: options.y ?? boss.y + 15,
+                vx: Math.cos(angle) * speed,
+                vy: Math.sin(angle) * speed,
+                radius,
+                damage: options.damage || 1,
+                color: options.color || '#ef4444',
+                curve: options.curve || 0,
+                accel: options.accel || 1,
+                gravity: options.gravity || 0,
+                wave: options.wave || 0,
+                wavePhase: options.wavePhase || Math.random() * Math.PI * 2,
+                life: options.life || 240,
+                trail: []
+            });
+        }
+
+        function removeBossBulletDamage(hitIndex, damage, hitColor = '#ff007f') {
+            const lossCount = Math.min(army.length, Math.max(1, Math.round(damage || 1)));
+            for (let loss = 0; loss < lossCount; loss++) {
+                const index = loss === 0 ? Math.min(hitIndex, army.length - 1) : army.length - 1;
+                const victim = army[index];
+                if (!victim) continue;
+                spawnSparks(victim.x, victim.y, hitColor);
+                army.splice(index, 1);
+            }
+            updateArmyLayout();
+            return lossCount;
+        }
+
+        function drawBossMarchShadow(box, pose, profile) {
+            const footY = boss.y + box.height * 0.42 + pose.footfall * 5;
+            const shadowW = Math.min(canvas.width * 0.72, box.width * (0.58 + pose.footfall * 0.08));
+            const shadowH = Math.max(12, box.height * 0.08);
+
+            ctx.save();
+            ctx.globalAlpha = 0.42;
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.72)';
+            ctx.beginPath();
+            ctx.ellipse(boss.x + pose.x * 0.6, footY, shadowW, shadowH, 0, 0, Math.PI * 2);
+            ctx.fill();
+
+            ctx.globalAlpha = 0.18 + pose.footfall * 0.12;
+            ctx.strokeStyle = profile.glow;
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.ellipse(boss.x + pose.x * 0.6, footY, shadowW * 0.88, shadowH * 0.7, 0, 0, Math.PI * 2);
+            ctx.stroke();
+
+            if (pose.footfall > 0.86) {
+                ctx.globalAlpha = (pose.footfall - 0.86) * 1.6;
+                ctx.strokeStyle = 'rgba(245, 158, 11, 0.5)';
+                ctx.lineWidth = 1.5;
+                for (let i = 0; i < 5; i++) {
+                    const dx = (i - 2) * shadowW * 0.18;
+                    ctx.beginPath();
+                    ctx.moveTo(boss.x + dx, footY);
+                    ctx.lineTo(boss.x + dx * 1.3, footY + 10 + i % 2 * 5);
+                    ctx.stroke();
+                }
+            }
+            ctx.restore();
+        }
+
+        function drawBattlefieldBackground() {
+            const w = canvas.width;
+            const h = canvas.height;
+            const scrollSpeed = gameState === 'RUNNING' ? roadSpeed : (gameState === 'BOSS_BATTLE' ? 1.15 : 0.42);
+            bgScrollY = (bgScrollY + scrollSpeed) % 96;
+
+            const base = ctx.createLinearGradient(0, 0, 0, h);
+            base.addColorStop(0, '#2b2118');
+            base.addColorStop(0.46, '#4b341b');
+            base.addColorStop(1, '#15100c');
+            ctx.fillStyle = base;
+            ctx.fillRect(0, 0, w, h);
+
+            const roadW = w * 0.72;
+            const roadX = (w - roadW) / 2;
+            const roadGradient = ctx.createLinearGradient(roadX, 0, roadX + roadW, 0);
+            roadGradient.addColorStop(0, '#2c2924');
+            roadGradient.addColorStop(0.18, '#3e3a33');
+            roadGradient.addColorStop(0.5, '#4d4940');
+            roadGradient.addColorStop(0.82, '#38342e');
+            roadGradient.addColorStop(1, '#24211d');
+            ctx.fillStyle = roadGradient;
+            ctx.fillRect(roadX, 0, roadW, h);
+
+            ctx.save();
+            ctx.globalAlpha = 0.32;
+            ctx.strokeStyle = '#d6b06a';
+            ctx.lineWidth = 2;
+            ctx.setLineDash([24, 28]);
+            ctx.lineDashOffset = -bgScrollY * 1.25;
+            ctx.beginPath();
+            ctx.moveTo(w / 2, -20);
+            ctx.lineTo(w / 2, h + 20);
+            ctx.stroke();
+
+            ctx.setLineDash([]);
+            ctx.globalAlpha = 0.48;
+            ctx.strokeStyle = 'rgba(245, 158, 11, 0.46)';
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            ctx.moveTo(roadX + 8, 0);
+            ctx.lineTo(roadX + 8, h);
+            ctx.moveTo(roadX + roadW - 8, 0);
+            ctx.lineTo(roadX + roadW - 8, h);
+            ctx.stroke();
+            ctx.restore();
+
+            ctx.save();
+            ctx.globalAlpha = 0.38;
+            for (let y = -96 + bgScrollY; y < h + 96; y += 96) {
+                ctx.fillStyle = 'rgba(0, 0, 0, 0.16)';
+                ctx.fillRect(roadX + roadW * 0.15, y + 28, roadW * 0.7, 3);
+                ctx.fillStyle = 'rgba(255, 221, 146, 0.04)';
+                ctx.fillRect(roadX + roadW * 0.08, y + 54, roadW * 0.84, 2);
+            }
+            ctx.restore();
+
+            ctx.save();
+            for (let i = 0; i < 14; i++) {
+                const seed = (i * 73) % 101;
+                const side = i % 2 === 0 ? -1 : 1;
+                const x = side < 0
+                    ? roadX * (0.2 + (seed % 50) / 80)
+                    : roadX + roadW + (w - roadX - roadW) * (0.18 + (seed % 48) / 74);
+                const y = ((i * 67 + bgScrollY * (0.7 + (i % 3) * 0.2)) % (h + 120)) - 60;
+                const r = 8 + (seed % 18);
+                ctx.fillStyle = i % 3 === 0 ? 'rgba(62, 39, 21, 0.42)' : 'rgba(16, 13, 10, 0.34)';
+                ctx.beginPath();
+                ctx.ellipse(x, y, r * 1.5, r * 0.62, (seed / 101) * Math.PI, 0, Math.PI * 2);
+                ctx.fill();
+                if (i % 4 === 0) {
+                    ctx.strokeStyle = 'rgba(245, 158, 11, 0.22)';
+                    ctx.lineWidth = 1.5;
+                    ctx.stroke();
+                }
+            }
+            ctx.restore();
+
+            if (gameState === 'BOSS_BATTLE') {
+                const alertGlow = ctx.createRadialGradient(w / 2, 0, 0, w / 2, 0, h * 0.8);
+                alertGlow.addColorStop(0, 'rgba(239, 68, 68, 0.22)');
+                alertGlow.addColorStop(0.62, 'rgba(239, 68, 68, 0.04)');
+                alertGlow.addColorStop(1, 'transparent');
+                ctx.fillStyle = alertGlow;
+                ctx.fillRect(0, 0, w, h);
+            }
+
+            const vignette = ctx.createRadialGradient(w / 2, h * 0.48, h * 0.08, w / 2, h * 0.48, h * 0.78);
+            vignette.addColorStop(0, 'rgba(255, 255, 255, 0.02)');
+            vignette.addColorStop(0.62, 'rgba(0, 0, 0, 0.08)');
+            vignette.addColorStop(1, 'rgba(0, 0, 0, 0.48)');
+            ctx.fillStyle = vignette;
+            ctx.fillRect(0, 0, w, h);
+        }
+
+        // Persistent stats (Upgradable)
+        let saveGold = 0;
+        let currentStage = 1;
+        let upgradeLevels = {
+            startUnit: 0,
+            fireRate: 0,
+            goldGain: 0
+        };
+        let resetProgressAfterEnding = false;
+
+        // Current Stage runtime variables
+        let gameState = 'MENU'; // MENU, RUNNING, BOSS_WARNING, BOSS_BATTLE, PAUSED, FINISHED
+        let roadSpeed = 6.2;    
+        let weaponLevel = 1;    
+        let frameCount = 0;     
+        let shakeTimer = 0;     
+
+        // Background scroll offset for "배경.jpg"
+        let bgScrollY = 0;
+
+        // Leader Commander & Army
+        const commander = {
+            x: 200,
+            y: 500, 
+            radius: 18, // Adjusted bounding size for 사령관.png
+            targetX: 200,
+            speed: 0.16 
+        };
+
+        function getCommanderBaseY() {
+            return Math.max(canvas.height * 0.62, canvas.height - COMMANDER_BOTTOM_OFFSET);
+        }
+
+        let army = []; 
+        let bullets = [];
+        let bossBullets = [];
+        let commanderFireTimer = 0;
+        let particles = [];
+        let debrisList = []; // Sand/dirt debris
+        let backgroundStars = []; // Fallback stars/dust tracker
+
+        // Active Sequence info
+        let sequence = {
+            type: 'arithmetic',
+            d: 2,
+            r: 2,
+            history: [],
+            currentValue: 0,
+            targetValue: 0,
+            gatePassedCount: 0,
+            maxGates: 6 
+        };
+
+        // Boss stats (진격 속도 및 좌표 변경)
+        const boss = {
+            x: 200,
+            y: -150, 
+            radius: 56,
+            hp: 300,
+            maxHp: 300,
+            speed: 0.45,         // 보스 진격속도
+            active: false,
+            shieldAngle: 0,
+            attackTimer: 0,
+            laserCharge: 0,      
+            laserActive: 0,   
+            laserTargetX: 200,    
+            laserSweep: 0,
+            beamWidth: 30,
+            laserLethalWidth: 6,
+            laserCommanderHit: false,
+            laserNeedsLayout: false,
+            currentPattern: 0,
+            nextAttackInterval: 2.6,
+            battleFrame: 0,
+            introStartY: -220,
+            spawnTargetY: 80,
+            strideSeed: 0
+        };
+
+        let popupTexts = [];
+        let activeGates = null; 
+        let isDragging = false;
+        let bossIntroTimer = null;
+
+        function getBossSpawnY() {
+            const bossBox = getBossRenderBox();
+            const topAnchoredCenter = bossBox.height * 0.48;
+            return Math.min(topAnchoredCenter, commander.y - boss.radius - 46);
+        }
+
+        function resetBossState() {
+            if (bossIntroTimer) {
+                clearTimeout(bossIntroTimer);
+                bossIntroTimer = null;
+            }
+            boss.active = false;
+            boss.y = -999;
+            boss.hp = boss.maxHp;
+            boss.attackTimer = 0;
+            boss.laserCharge = 0;
+            boss.laserActive = 0;
+            boss.laserSweep = 0;
+            boss.beamWidth = 30;
+            boss.laserLethalWidth = 6;
+            boss.laserCommanderHit = false;
+            boss.laserNeedsLayout = false;
+            boss.currentPattern = 0;
+            boss.nextAttackInterval = 2.6;
+            boss.battleFrame = 0;
+            boss.introStartY = -220;
+            boss.spawnTargetY = 80;
+            boss.strideSeed = 0;
+            bossBullets = [];
+        }
+
+        // Custom alert utility
+        function showAlert() {
+            const modal = document.getElementById('custom-alert');
+            modal.classList.remove('pointer-events-none', 'opacity-0');
+            modal.classList.add('opacity-100');
+        }
+        document.getElementById('alert-close').addEventListener('click', () => {
+            const modal = document.getElementById('custom-alert');
+            modal.classList.add('pointer-events-none', 'opacity-0');
+            modal.classList.remove('opacity-100');
+        });
+
+        // 이미지 회전 그리기 헬퍼 함수
+        function drawRotatedImage(img, x, y, w, h, angle) {
+            const drawable = getDrawableAsset(img);
+            if (!drawable) return false;
+            ctx.save();
+            ctx.translate(x, y);
+            ctx.rotate(angle);
+            ctx.imageSmoothingEnabled = true;
+            ctx.imageSmoothingQuality = 'high';
+            ctx.drawImage(drawable, -w/2, -h/2, w, h);
+            ctx.restore();
+            return true;
+        }
+
+        // Responsive resize
+        function resizeCanvas() {
+            const container = canvas.parentElement;
+            canvas.width = container.clientWidth;
+            canvas.height = container.clientHeight;
+            commander.y = getCommanderBaseY();
+            updateArmyLayout();
+        }
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
+
+        class Soldier {
+            constructor(offsetX, offsetY) {
+                this.offsetX = offsetX; 
+                this.offsetY = offsetY;
+                this.x = commander.x + offsetX;
+                this.y = commander.y + offsetY;
+                this.color = '#84cc16'; 
+                this.radius = 12; // Adjusted hit circle for 병사.png
+                this.fireTimer = Math.random() * 0.12; 
+            }
+            update(fireRateLimit) {
+                const targetX = commander.x + this.offsetX;
+                const targetY = commander.y + this.offsetY;
+                this.x += (targetX - this.x) * 0.12;
+                this.y += (targetY - this.y) * 0.12;
+
+                // Automatic firing in Boss Battle
+                if (gameState === 'BOSS_BATTLE') {
+                    this.fireTimer += 0.016; 
+                    if (this.fireTimer >= fireRateLimit) {
+                        this.fireTimer = 0;
+                        this.shootWeapon();
+                    }
+                }
+            }
+            shootWeapon() {
+                const dmgScale = 1 + upgradeLevels.fireRate * 0.15;
+                audio.playLaser();
+                
+                // 우리편 총알.png 이미지 장착 사격 물리
+                const bulletDmg = 1 * dmgScale;
+                if (weaponLevel === 1) {
+                    bullets.push({
+                        x: this.x, y: this.y, vx: 0, vy: -11,
+                        damage: bulletDmg, size: 6, angle: -Math.PI / 2
+                    });
+                } 
+                else if (weaponLevel === 2) {
+                    bullets.push({
+                        x: this.x - 4, y: this.y, vx: 0, vy: -11.5,
+                        damage: 0.9 * bulletDmg, size: 5, angle: -Math.PI / 2
+                    });
+                    bullets.push({
+                        x: this.x + 4, y: this.y, vx: 0, vy: -11.5,
+                        damage: 0.9 * bulletDmg, size: 5, angle: -Math.PI / 2
+                    });
+                } 
+                else if (weaponLevel === 3) {
+                    bullets.push({
+                        x: this.x, y: this.y, vx: -2, vy: -11,
+                        damage: 1 * bulletDmg, size: 5.5, angle: Math.atan2(-11, -2)
+                    });
+                    bullets.push({
+                        x: this.x, y: this.y, vx: 0, vy: -12,
+                        damage: 1.5 * bulletDmg, size: 7, angle: -Math.PI / 2
+                    });
+                    bullets.push({
+                        x: this.x, y: this.y, vx: 2, vy: -11,
+                        damage: 1 * bulletDmg, size: 5.5, angle: Math.atan2(-11, 2)
+                    });
+                } 
+                else if (weaponLevel === 4) {
+                    bullets.push({
+                        x: this.x - 3, y: this.y, vx: -2.8, vy: -11.5,
+                        damage: 1.2 * bulletDmg, size: 6, angle: Math.atan2(-11.5, -2.8)
+                    });
+                    bullets.push({
+                        x: this.x, y: this.y, vx: 0, vy: -13,
+                        damage: 2.2 * bulletDmg, size: 8, angle: -Math.PI / 2
+                    });
+                    bullets.push({
+                        x: this.x + 3, y: this.y, vx: 2.8, vy: -11.5,
+                        damage: 1.2 * bulletDmg, size: 6, angle: Math.atan2(-11.5, 2.8)
+                    });
+                } 
+                else {
+                    bullets.push({
+                        x: this.x, y: this.y, vx: -3.8, vy: -12,
+                        damage: 1.5 * bulletDmg, size: 7, angle: Math.atan2(-12, -3.8)
+                    });
+                    bullets.push({
+                        x: this.x, y: this.y, vx: 0, vy: -14,
+                        damage: 3.5 * bulletDmg, size: 10, angle: -Math.PI / 2
+                    });
+                    bullets.push({
+                        x: this.x, y: this.y, vx: 3.5, vy: -12,
+                        damage: 1.5 * bulletDmg, size: 7, angle: Math.atan2(-12, 3.5)
+                    });
+                }
+            }
+            // 병사.png 렌더링 (그라데이션 폴백 내장)
+            draw() {
+                if (isImageReady(imgSoldier)) {
+                    drawNaturalImageCentered(
+                        imgSoldier,
+                        this.x,
+                        this.y,
+                        this.radius * 2 * SOLDIER_RENDER_SCALE,
+                        this.radius * 2 * SOLDIER_RENDER_SCALE,
+                        { shadowColor: 'rgba(132, 204, 22, 0.55)', shadowBlur: 8 }
+                    );
+                } else {
+                    // [대규모 보강] 완벽하고 아름다운 사막 위장 지상군 정예 병사 벡터 그래픽 폴백
+                    ctx.save();
+                    ctx.translate(this.x, this.y);
+                    
+                    // 신체 하체 (안정적인 돌격 보병자세)
+                    ctx.fillStyle = '#292524';
+                    ctx.fillRect(-5, 4, 10, 3);
+                    
+                    // 흉갑 몸통 (전술 방탄조끼 올리브)
+                    ctx.fillStyle = '#166534';
+                    ctx.fillRect(-7, -2, 14, 6);
+                    
+                    // 전술 방탄 헬멧
+                    ctx.fillStyle = '#14532d';
+                    ctx.strokeStyle = '#84cc16';
+                    ctx.lineWidth = 1.5;
+                    ctx.beginPath();
+                    ctx.arc(0, -4, 5.5, 0, Math.PI * 2);
+                    ctx.fill();
+                    ctx.stroke();
+                    
+                    // 안면 고글
+                    ctx.fillStyle = '#f59e0b';
+                    ctx.fillRect(-3, -5, 6, 1.5);
+                    
+                    // 소지 화포/소총 소체
+                    ctx.fillStyle = '#334155';
+                    ctx.fillRect(4, -1, 6, 3);
+
+                    ctx.restore();
+                }
+            }
+        }
+
+        function updateArmyLayout() {
+            const currentSize = army.length;
+            const maxRow = Math.floor(Math.sqrt(Math.max(0, currentSize - 1)));
+            const baseOffsetY = 34;
+            const soldierRenderHalf = 12 * SOLDIER_RENDER_SCALE;
+            const bottomLimit = canvas.height - soldierRenderHalf - 10;
+            const maxOffsetY = Math.max(baseOffsetY + 10, bottomLimit - commander.y);
+            const rowSpacing = maxRow > 0
+                ? Math.min(22, Math.max(11, (maxOffsetY - baseOffsetY) / maxRow))
+                : 22;
+
+            for (let i = 0; i < currentSize; i++) {
+                const row = Math.floor(Math.sqrt(i));
+                const rowStart = row * row;
+                const rowCount = row * 2 + 1;
+                const positionInRow = i - rowStart;
+                const centeredIndex = positionInRow - (rowCount - 1) / 2;
+                const stagger = row % 2 === 0 ? 0 : 10;
+                const offX = centeredIndex * 22 + stagger;
+                const offY = baseOffsetY + row * rowSpacing + Math.sin(i * 0.9) * 2.4;
+                
+                army[i].offsetX = offX;
+                army[i].offsetY = offY;
+            }
+        }
+
+        function addSoldiers(count, options = {}) {
+            const currentArmyCount = army.length;
+            const showPopup = Boolean(options.showPopup);
+            
+            if (currentArmyCount >= MAX_ARMY_CAP) {
+                convertOverflowSquadReward(showPopup);
+                return;
+            }
+
+            const spawnCount = Math.min(count, MAX_ARMY_CAP - currentArmyCount);
+            for (let i = 0; i < spawnCount; i++) {
+                const randX = (Math.random() - 0.5) * 60;
+                const randY = 30 + Math.random() * 40;
+                army.push(new Soldier(randX, randY));
+            }
+            updateArmyLayout();
+
+            if (showPopup && spawnCount > 0) {
+                spawnPopupText(commander.x, commander.y - 52, `SQUAD +${spawnCount}`, '#39ff14', 'reward');
+            }
+            if (count > spawnCount) {
+                convertOverflowSquadReward(showPopup);
+            }
+        }
+
+        function convertOverflowSquadReward(showPopup = true) {
+            if (weaponLevel < 5) {
+                weaponLevel = Math.min(weaponLevel + 1, 5);
+                if (showPopup) {
+                    spawnPopupText(commander.x, commander.y - 78, `SQUAD FULL! WEAPON UP LV.${weaponLevel}`, '#00f0ff', 'reward');
+                }
+                audio.playUpgrade();
+            } else {
+                const goldBonus = 15;
+                saveGold += goldBonus;
+                if (showPopup) {
+                    spawnPopupText(commander.x, commander.y - 78, `SQUAD FULL! GOLD +${goldBonus}`, '#ffea00', 'reward');
+                }
+            }
+            updateHud();
+        }
+
+        function removeSoldiers(proportion) {
+            const removeCount = Math.floor(army.length * proportion);
+            if (removeCount > 0) {
+                for (let i = 0; i < removeCount; i++) {
+                    const victim = army[army.length - 1 - i];
+                    if (victim) {
+                        spawnSparks(victim.x, victim.y, '#ff007f');
+                    }
+                }
+                army.splice(army.length - removeCount, removeCount);
+                updateArmyLayout();
+                triggerScreenShake(12);
+            }
+        }
+
+        function triggerScreenShake(duration) {
+            shakeTimer = duration;
+            document.getElementById('game-container').classList.add('shake-screen');
+        }
+
+        // 증가수열/감소수열 표기를 완벽히 배제하고 등차/등비 표준형으로 통일
+        function generateSequenceForStage() {
+            const maxGatesCount = 5 + Math.min(currentStage, 5); 
+            const typeSelector = currentStage % 3; 
+            const seq = { gatePassedCount: 0, maxGates: maxGatesCount };
+
+            if (typeSelector === 1) {
+                seq.type = 'arithmetic';
+                seq.d = [2, 3, 4, 5][Math.floor(Math.random() * 4)];
+                const start = Math.floor(Math.random() * 5) + 1;
+                seq.currentValue = start;
+                seq.targetValue = start + seq.d;
+                seq.history = [start];
+                seq.ruleDescription = `등차수열 (공차 +${seq.d})`;
+            } 
+            else if (typeSelector === 2) {
+                seq.type = 'geometric';
+                seq.r = [2, 3][Math.floor(Math.random() * 2)];
+                const start = Math.floor(Math.random() * 2) + 1;
+                seq.currentValue = start;
+                seq.targetValue = start * seq.r;
+                seq.history = [start];
+                seq.ruleDescription = `등비수열 (공비 ×${seq.r})`;
+            } 
+            else {
+                seq.type = 'subtraction';
+                seq.d = [2, 3, 4][Math.floor(Math.random() * 3)];
+                const start = (seq.d * maxGatesCount) + (Math.random() < 0.45 ? 0 : seq.d);
+                seq.currentValue = start;
+                seq.targetValue = start - seq.d;
+                seq.history = [start];
+                seq.ruleDescription = `등차수열 (공차 -${seq.d})`;
+            }
+
+            sequence = seq;
+            updateHud();
+        }
+
+        function advanceSequence() {
+            const seq = sequence;
+            seq.history.push(seq.targetValue);
+            if (seq.history.length > 3) seq.history.shift();
+
+            seq.currentValue = seq.targetValue;
+            if (seq.type === 'arithmetic') {
+                seq.targetValue = seq.currentValue + seq.d;
+            } else if (seq.type === 'geometric') {
+                seq.targetValue = seq.currentValue * seq.r;
+            } else {
+                seq.targetValue = Math.max(0, seq.currentValue - seq.d);
+            }
+
+            seq.gatePassedCount++;
+            updateHud();
+        }
+
+        function updateHud() {
+            document.getElementById('seq-rule').innerText = sequence.ruleDescription;
+            document.getElementById('seq-target').innerText = '?';
+            document.getElementById('seq-history').innerText = sequence.history.join(' → ') + ' → ?';
+            document.getElementById('gold-display').innerHTML = `<i class="fa-solid fa-coins mr-1"></i>${saveGold}`;
+            document.getElementById('progress-bar').style.width = `${(sequence.gatePassedCount / sequence.maxGates) * 100}%`;
+            document.getElementById('army-size-text').innerText = `ARMY: ${army.length}`;
+            document.getElementById('weapon-lvl-display').innerText = `WEAPON: LV.${weaponLevel}`;
+            document.getElementById('current-stage-num').innerText = currentStage;
+            document.getElementById('shop-gold').innerHTML = `<i class="fa-solid fa-coins mr-1"></i>${saveGold}`;
+        }
+
+        // --- MULTI-CHOICE GATES CREATION ---
+        function createDecoyValues(target, count) {
+            const decoys = [];
+            const used = new Set([target]);
+            const offsets = [1, -1, 2, -2, 3, -3, 4, -4, 5, -5, 6, -6];
+
+            for (const offset of offsets) {
+                if (decoys.length >= count) break;
+                const candidate = Math.max(0, target + offset);
+                if (used.has(candidate)) continue;
+                used.add(candidate);
+                decoys.push(candidate);
+            }
+
+            let fallback = 0;
+            while (decoys.length < count) {
+                if (!used.has(fallback)) {
+                    used.add(fallback);
+                    decoys.push(fallback);
+                }
+                fallback++;
+            }
+
+            return decoys;
+        }
+
+        function spawnGates() {
+            const target = sequence.targetValue;
+            const lanesCount = currentStage >= 3 ? 3 : 2;
+            const lanes = createDecoyValues(target, lanesCount - 1).map(decoy => ({
+                value: decoy,
+                isCorrect: false,
+                effect: getRandomGateEffect(false)
+            }));
+
+            const correctGate = {
+                value: target,
+                isCorrect: true,
+                effect: getRandomGateEffect(true)
+            };
+            const correctIndex = Math.floor(Math.random() * lanesCount);
+            lanes.splice(correctIndex, 0, correctGate);
+
+            activeGates = {
+                y: -100,
+                passed: false,
+                lanes: lanes
+            };
+        }
+
+        function getRandomGateEffect(isCorrect) {
+            if (isCorrect) {
+                const currentArmyCount = army.length;
+                const rand = Math.random();
+
+                if (currentArmyCount >= MAX_ARMY_CAP) {
+                    return { type: 'WEAPON_UP', value: 1, desc: `WEAPON UP ⚡` };
+                }
+                else if (currentArmyCount >= ARMY_WEAPON_BIAS_THRESHOLD) {
+                    if (rand < 0.86) {
+                        return { type: 'WEAPON_UP', value: 1, desc: `WEAPON UP ⚡` };
+                    } else {
+                        const val = Math.floor(Math.random() * 3) + 2;
+                        return { type: 'SQUAD_ADD', value: val, desc: `SQUAD +${val} 🛡️` };
+                    }
+                } 
+                else {
+                    if (rand < 0.40) {
+                        const val = Math.min(25, Math.floor(sequence.targetValue * 0.5) + 4);
+                        return { type: 'SQUAD_ADD', value: val, desc: `SQUAD +${val} 🛡️` };
+                    } else if (rand < 0.75) {
+                        return { type: 'WEAPON_UP', value: 1, desc: `WEAPON UP ⚡` };
+                    } else {
+                        return { type: 'SQUAD_MULTIPLY', value: 1.3, desc: `SQUAD x1.3 🔥` };
+                    }
+                }
+            } else {
+                const rand = Math.random();
+                if (rand < 0.6) {
+                    return { type: 'SQUAD_SUB', value: 0.4, desc: `SQUAD -40% 💀` };
+                } else {
+                    return { type: 'WEAPON_DOWN', value: 1, desc: `WEAPON DOWN 🔻` };
+                }
+            }
+        }
+
+        function spawnSparks(x, y, color) {
+            for (let i = 0; i < 12; i++) {
+                particles.push({
+                    x: x, y: y,
+                    vx: (Math.random() - 0.5) * 6,
+                    vy: (Math.random() - 0.5) * 6,
+                    radius: Math.random() * 2 + 1.5,
+                    color: color,
+                    alpha: 1,
+                    decay: Math.random() * 0.03 + 0.01
+                });
+            }
+        }
+
+        function spawnPopupText(x, y, text, color, kind = 'neutral') {
+            popupTexts.push({
+                x: x,
+                y: y,
+                text: text,
+                color: color,
+                kind: kind,
+                alpha: 1,
+                vy: kind === 'penalty' ? -1.1 : -1.35,
+                life: kind === 'neutral' ? 48 : 66
+            });
+        }
+
+        // 라운드별 각기 다른 고유형 보스 이미지 선택 도우미
+        function getCurrentBossImage() {
+            const bossIndex = Math.min(currentStage - 1, imgBossStages.length - 1);
+            return imgBossStages[bossIndex];
+        }
+
+        function triggerBossBattle() {
+            gameState = 'BOSS_WARNING';
+            audio.playExplode();
+            
+            document.getElementById('hud-sequence-section').classList.add('hidden');
+
+            const banner = document.getElementById('boss-warning-banner');
+            banner.classList.remove('scale-0');
+            banner.classList.add('scale-100');
+            
+            bossIntroTimer = setTimeout(() => {
+                bossIntroTimer = null;
+                if (gameState !== 'BOSS_WARNING') return;
+                banner.classList.remove('scale-100');
+                banner.classList.add('scale-0');
+                
+                gameState = 'BOSS_BATTLE';
+                boss.active = true;
+                const isFinalBoss = currentStage >= TOTAL_ROUNDS;
+                boss.hp = getBossHpForStage(); 
+                boss.maxHp = boss.hp;
+                boss.x = canvas.width / 2;
+                boss.radius = getBossGameplayRadius();
+                
+                const motionProfile = getBossMotionProfile();
+                boss.speed = (0.52 + currentStage * 0.078) * motionProfile.advanceMul;
+                if (isFinalBoss) {
+                    boss.speed *= 0.48;
+                }
+
+                boss.attackTimer = 0;
+                boss.laserCharge = 0;
+                boss.laserActive = 0;
+                boss.laserSweep = 0;
+                boss.beamWidth = 30;
+                boss.laserLethalWidth = 6;
+                boss.laserCommanderHit = false;
+                boss.laserNeedsLayout = false;
+                boss.currentPattern = isFinalBoss ? -1 : 0;
+                boss.nextAttackInterval = isFinalBoss ? getFinalBossLaserDelay() : 2.6;
+                boss.battleFrame = 0;
+                boss.strideSeed = Math.random() * Math.PI * 2;
+
+                document.getElementById('hud-boss-section').classList.remove('hidden');
+                updateBossHpBar();
+                boss.spawnTargetY = getBossSpawnY();
+                boss.introStartY = -Math.max(160, getBossRenderBox().height * 0.42);
+                boss.y = boss.introStartY;
+            }, 2000);
+        }
+
+        function updateBossHpBar() {
+            const ratio = Math.max(0, boss.hp / boss.maxHp);
+            document.getElementById('boss-hp-bar-fill').style.width = `${ratio * 100}%`;
+            document.getElementById('boss-hp-text').innerText = `HP: ${Math.max(0, Math.floor(boss.hp))} / ${boss.maxHp}`;
+        }
+
+        function resetCampaignProgress() {
+            saveGold = 0;
+            currentStage = 1;
+            upgradeLevels = {
+                startUnit: 0,
+                fireRate: 0,
+                goldGain: 0
+            };
+            weaponLevel = 1;
+            commanderFireTimer = 0;
+            army = [];
+            bullets = [];
+            bossBullets = [];
+            particles = [];
+            popupTexts = [];
+            activeGates = null;
+            isDragging = false;
+            resetBossState();
+            boss.hp = 300;
+            boss.maxHp = 300;
+            updateHud();
+            renderShopStats();
+        }
+
+        function returnToMenuFromResult() {
+            document.getElementById('result-screen').classList.add('hidden');
+            document.getElementById('menu-screen').classList.remove('hidden');
+            gameState = 'MENU';
+
+            if (resetProgressAfterEnding) {
+                resetProgressAfterEnding = false;
+                resetCampaignProgress();
+            } else {
+                updateHud();
+                renderShopStats();
+            }
+        }
+
+        function endStage(won) {
+            if (gameState === 'FINISHED') return;
+            gameState = 'FINISHED';
+            resetBossState();
+
+            document.getElementById('hud').classList.add('opacity-0');
+            document.getElementById('game-container').classList.remove('shake-screen');
+            document.getElementById('hud-boss-section').classList.add('hidden');
+
+            const scr = document.getElementById('result-screen');
+            const iconCont = document.getElementById('result-icon-container');
+            const title = document.getElementById('result-title');
+            const desc = document.getElementById('result-desc');
+            const actionBtn = document.getElementById('result-action-btn');
+            resetProgressAfterEnding = false;
+            
+            if (won) {
+                scr.classList.add('result-victory');
+                scr.classList.remove('result-defeat');
+                actionBtn.dataset.action = 'menu';
+                const clearedStage = currentStage;
+                const isFinalStageVictory = clearedStage >= TOTAL_ROUNDS;
+                const baseReward = 100 + currentStage * 40;
+                const armyBonus = Math.floor(army.length * 1.8);
+                const goldMultiplier = 1 + upgradeLevels.goldGain * 0.25;
+                const earnedGold = Math.floor((baseReward + armyBonus) * goldMultiplier);
+                
+                saveGold += earnedGold;
+                
+                if (isFinalStageVictory) {
+                    currentStage = 1;
+                    resetProgressAfterEnding = true;
+                    iconCont.innerHTML = `<i class="fa-solid fa-crown text-6xl text-yellow-300 animate-bounce"></i>`;
+                    title.innerText = "SEQUENCE MASTER";
+                    title.className = "font-orbitron text-4xl font-black text-yellow-300 mb-2 tracking-wide uppercase";
+                    desc.innerText = `모든 ${TOTAL_ROUNDS}개 라운드 클리어! 당신은 수열 마스터입니다.`;
+                    actionBtn.innerText = "엔딩 완료! 메뉴로";
+                } else {
+                    currentStage++;
+                    iconCont.innerHTML = `<i class="fa-solid fa-trophy text-6xl text-yellow-400 animate-bounce"></i>`;
+                    title.innerText = "VICTORY";
+                    title.className = "font-orbitron text-4xl font-black text-[#39ff14] mb-2 tracking-wide uppercase neon-text-green";
+                    desc.innerText = `작전 구역의 거대 위협 요소를 격퇴했습니다!`;
+                    actionBtn.innerText = "다음 작전지로";
+                }
+
+                document.getElementById('reward-gold').innerHTML = `<i class="fa-solid fa-coins mr-1"></i>+${earnedGold}`;
+                document.getElementById('final-army-size').innerText = `${army.length}명 전투원 복귀`;
+            } else {
+                scr.classList.add('result-defeat');
+                scr.classList.remove('result-victory');
+                actionBtn.dataset.action = 'retry';
+                resetCampaignProgress();
+                iconCont.innerHTML = `<i class="fa-solid fa-skull-crossbones text-6xl text-red-500 animate-pulse"></i>`;
+                title.innerText = "DEFEAT";
+                title.className = "font-orbitron text-4xl font-black text-red-500 mb-2 tracking-wide uppercase";
+                desc.innerText = "아군 방어선이 함락되었습니다. 골드와 강화가 초기화되고 1단계부터 재시작합니다.";
+                document.getElementById('reward-gold').innerHTML = `<i class="fa-solid fa-coins mr-1"></i>+0`;
+                document.getElementById('final-army-size').innerText = `새 원정 준비`;
+                actionBtn.innerText = "새로 재도전";
+            }
+            
+            updateHud();
+            scr.classList.remove('hidden');
+        }
+
+        function renderShopStats() {
+            const currentUnits = 5 + upgradeLevels.startUnit * 3;
+            const costUnits = 100 + upgradeLevels.startUnit * 60;
+            document.getElementById('desc-start-unit').innerText = `현재 시작 인원: ${currentUnits}명`;
+            document.getElementById('cost-start-unit').innerHTML = `<i class="fa-solid fa-coins mr-0.5"></i> ${costUnits}`;
+
+            const rawRate = 0.45 - upgradeLevels.fireRate * 0.05;
+            const viewRate = rawRate.toFixed(2);
+            const costFire = 150 + upgradeLevels.fireRate * 100;
+            document.getElementById('desc-fire-rate').innerText = `현재 탄막 연사: ${viewRate}초`;
+            document.getElementById('cost-fire-rate').innerHTML = `<i class="fa-solid fa-coins mr-0.5"></i> ${costFire}`;
+
+            const goldMult = 1 + upgradeLevels.goldGain * 0.25;
+            const costGold = 200 + upgradeLevels.goldGain * 120;
+            document.getElementById('desc-gold-gain').innerText = `현재 골드 배율: x${goldMult.toFixed(2)}`;
+            document.getElementById('cost-gold-gain').innerHTML = `<i class="fa-solid fa-coins mr-0.5"></i> ${costGold}`;
+
+            document.getElementById('shop-gold').innerHTML = `<i class="fa-solid fa-coins mr-1"></i>${saveGold}`;
+        }
+
+        document.getElementById('up-start-unit').addEventListener('click', () => {
+            const cost = 100 + upgradeLevels.startUnit * 60;
+            if (saveGold >= cost) {
+                saveGold -= cost;
+                upgradeLevels.startUnit++;
+                audio.playUpgrade();
+                renderShopStats();
+                updateHud();
+            } else {
+                showAlert();
+            }
+        });
+
+        document.getElementById('up-fire-rate').addEventListener('click', () => {
+            if (upgradeLevels.fireRate >= 6) {
+                spawnPopupText(180, 400, "MAX LEVEL", "#ff007f");
+                return;
+            }
+            const cost = 150 + upgradeLevels.fireRate * 100;
+            if (saveGold >= cost) {
+                saveGold -= cost;
+                upgradeLevels.fireRate++;
+                audio.playUpgrade();
+                renderShopStats();
+                updateHud();
+            } else {
+                showAlert();
+            }
+        });
+
+        document.getElementById('up-gold-gain').addEventListener('click', () => {
+            const cost = 200 + upgradeLevels.goldGain * 120;
+            if (saveGold >= cost) {
+                saveGold -= cost;
+                upgradeLevels.goldGain++;
+                audio.playUpgrade();
+                renderShopStats();
+                updateHud();
+            } else {
+                showAlert();
+            }
+        });
+
+        function startStageRuntime() {
+            audio.init();
+            
+            gameState = 'RUNNING';
+            bullets = [];
+            bossBullets = [];
+            commanderFireTimer = 0;
+            particles = [];
+            popupTexts = [];
+            activeGates = null;
+            isDragging = false;
+            weaponLevel = 1; 
+            shakeTimer = 0;
+            resetBossState();
+
+            document.getElementById('hud-sequence-section').classList.remove('hidden');
+            document.getElementById('hud-boss-section').classList.add('hidden');
+            document.getElementById('game-container').classList.remove('shake-screen');
+            document.getElementById('boss-warning-banner').classList.remove('scale-100');
+            document.getElementById('boss-warning-banner').classList.add('scale-0');
+            
+            const startUnitCount = 5 + upgradeLevels.startUnit * 3;
+            army = [];
+            commander.x = canvas.width / 2;
+            commander.targetX = canvas.width / 2;
+            commander.y = getCommanderBaseY(); 
+            addSoldiers(startUnitCount);
+
+            generateSequenceForStage();
+            spawnGates();
+
+            document.getElementById('menu-screen').classList.add('hidden');
+            document.getElementById('result-screen').classList.add('hidden');
+            document.getElementById('hud').classList.remove('opacity-0');
+        }
+
+        function canControlCommander() {
+            return gameState === 'RUNNING' || gameState === 'BOSS_WARNING' || gameState === 'BOSS_BATTLE';
+        }
+
+        function setCommanderTargetX(nextX) {
+            const padding = commander.radius + 10;
+            commander.targetX = clamp(nextX, padding, canvas.width - padding);
+        }
+
+        function setCommanderTargetFromClientX(clientX) {
+            const rect = canvas.getBoundingClientRect();
+            const ratio = canvas.width / rect.width;
+            setCommanderTargetX((clientX - rect.left) * ratio);
+        }
+
+        canvas.style.touchAction = 'none';
+        canvas.addEventListener('pointerdown', (event) => {
+            if (!canControlCommander()) return;
+            isDragging = true;
+            canvas.setPointerCapture(event.pointerId);
+            setCommanderTargetFromClientX(event.clientX);
+            event.preventDefault();
+        });
+
+        canvas.addEventListener('pointermove', (event) => {
+            if (!isDragging || !canControlCommander()) return;
+            setCommanderTargetFromClientX(event.clientX);
+            event.preventDefault();
+        });
+
+        canvas.addEventListener('pointerup', (event) => {
+            isDragging = false;
+            if (canvas.hasPointerCapture(event.pointerId)) {
+                canvas.releasePointerCapture(event.pointerId);
+            }
+        });
+
+        canvas.addEventListener('pointercancel', () => {
+            isDragging = false;
+        });
+
+        window.addEventListener('keydown', (event) => {
+            if (!canControlCommander()) return;
+            const keyStep = canvas.width * 0.18;
+            if (event.key === 'ArrowLeft' || event.key.toLowerCase() === 'a') {
+                setCommanderTargetX(commander.targetX - keyStep);
+                event.preventDefault();
+            } else if (event.key === 'ArrowRight' || event.key.toLowerCase() === 'd') {
+                setCommanderTargetX(commander.targetX + keyStep);
+                event.preventDefault();
+            }
+        });
+
+        document.getElementById('start-btn').addEventListener('click', startStageRuntime);
+        document.getElementById('result-action-btn').addEventListener('click', () => {
+            const action = document.getElementById('result-action-btn').dataset.action;
+            if (action === 'retry') {
+                startStageRuntime();
+            } else {
+                returnToMenuFromResult();
+            }
+        });
+        document.getElementById('result-menu-btn').addEventListener('click', () => {
+            returnToMenuFromResult();
+        });
+
+        function update() {
+            if (gameState === 'MENU' || gameState === 'PAUSED' || gameState === 'FINISHED') return;
+
+            if (shakeTimer > 0) {
+                shakeTimer--;
+                if (shakeTimer <= 0) {
+                    document.getElementById('game-container').classList.remove('shake-screen');
+                }
+            }
+
+            // 1. Commander Smooth Move
+            commander.x += (commander.targetX - commander.x) * commander.speed;
+
+            // 2. Soldiers Follow Commander
+            const fireRateLimit = 0.45 - upgradeLevels.fireRate * 0.05;
+            army.forEach(soldier => {
+                soldier.update(fireRateLimit);
+            });
+            if (gameState === 'BOSS_BATTLE' && boss.active) {
+                const commanderFireLimit = Math.max(0.18, COMMANDER_FIRE_BASE_RATE - upgradeLevels.fireRate * 0.025);
+                commanderFireTimer += 0.016;
+                if (commanderFireTimer >= commanderFireLimit) {
+                    commanderFireTimer = 0;
+                    shootCommanderWeapon();
+                }
+            } else {
+                commanderFireTimer = 0;
+            }
+
+            // 3. RUNNING PHASE (이지선다 관문 통과)
+            if (gameState === 'RUNNING') {
+                if (activeGates) {
+                    activeGates.y += roadSpeed;
+                    
+                    if (!activeGates.passed && activeGates.y >= commander.y - 15) {
+                        activeGates.passed = true;
+                        
+                        const laneCount = activeGates.lanes.length;
+                        const laneW = canvas.width / laneCount;
+                        const chosenLaneIdx = Math.max(0, Math.min(laneCount - 1, Math.floor(commander.x / laneW)));
+                        const chosenGate = activeGates.lanes[chosenLaneIdx];
+
+                        if (chosenGate.isCorrect) {
+                            audio.playGateCorrect();
+                            spawnSparks(commander.x, commander.y, '#39ff14');
+
+                            if (chosenGate.effect.type === 'SQUAD_ADD') {
+                                addSoldiers(chosenGate.effect.value, { showPopup: true });
+                            } 
+                            else if (chosenGate.effect.type === 'WEAPON_UP') {
+                                weaponLevel = Math.min(weaponLevel + 1, 5);
+                                spawnPopupText(commander.x, commander.y - 54, `WEAPON UP! LV.${weaponLevel} ⚡`, '#00f0ff', 'reward');
+                            } 
+                            else if (chosenGate.effect.type === 'SQUAD_MULTIPLY') {
+                                const addCount = Math.floor(army.length * (chosenGate.effect.value - 1));
+                                addSoldiers(addCount, { showPopup: true });
+                            }
+
+                            advanceSequence();
+
+                            if (sequence.gatePassedCount >= sequence.maxGates) {
+                                activeGates = null;
+                                triggerBossBattle();
+                            } else {
+                                activeGates.y = -100;
+                                spawnGates();
+                            }
+                        } else {
+                            audio.playGateWrong();
+                            spawnSparks(commander.x, commander.y, '#ff007f');
+
+                            if (chosenGate.effect.type === 'SQUAD_SUB') {
+                                const beforeSize = army.length;
+                                removeSoldiers(0.5);
+                                const lost = beforeSize - army.length;
+                                spawnPopupText(commander.x, commander.y - 54, `-${lost} SQUAD LOST 💀`, '#ff335f', 'penalty');
+                            } else {
+                                weaponLevel = Math.max(weaponLevel - 1, 1);
+                                spawnPopupText(commander.x, commander.y - 54, `WEAPON DOWN! LV.${weaponLevel} 🔻`, '#ff335f', 'penalty');
+                            }
+
+                            advanceSequence();
+                            
+                            if (army.length <= 0) {
+                                endStage(false);
+                            } else if (sequence.gatePassedCount >= sequence.maxGates) {
+                                activeGates = null;
+                                triggerBossBattle();
+                            } else {
+                                activeGates.y = -100;
+                                spawnGates();
+                            }
+                        }
+                    }
+
+                    if (activeGates && activeGates.y > canvas.height + 50) {
+                        spawnGates();
+                    }
+                }
+            }
+
+            // 4. BOSS BATTLE PHASE (보스가 아래로 성큼성큼 걸어서 전진하는 기믹 전술 개편)
+            if (gameState === 'BOSS_BATTLE') {
+                boss.battleFrame++;
+                const motionProfile = getBossMotionProfile();
+                if (boss.y < boss.spawnTargetY) {
+                    boss.y += Math.min(motionProfile.entrySpeed, boss.spawnTargetY - boss.y);
+                } else {
+                    boss.y += boss.speed;
+                }
+
+                // 패배 메커니즘: 보스가 아군 사령관 방어선(Y 좌표)을 통과하는 순간 방어막 붕괴 패배 처리
+                if (boss.y >= commander.y - boss.radius) {
+                    endStage(false);
+                    return;
+                }
+
+                const distanceToDefense = commander.y - boss.y;
+                if (distanceToDefense < BOSS_WARNING_DISTANCE && frameCount % 12 === 0) {
+                    const tremorPower = Math.ceil(clamp((BOSS_WARNING_DISTANCE - distanceToDefense) / 42, 1, 5));
+                    triggerScreenShake(tremorPower);
+                }
+
+                const bossCanAttack = boss.y > Math.min(44, canvas.height * 0.08);
+                if (bossCanAttack) {
+                    boss.attackTimer += 0.016;
+                } else {
+                    boss.attackTimer = 0;
+                    boss.laserCharge = 0;
+                    boss.laserActive = 0;
+                }
+                boss.shieldAngle += 0.025;
+
+                if (bossCanAttack) {
+                    // 보스 공격 타이머 및 패턴 제어
+                    const isFinalBossBattle = currentStage >= TOTAL_ROUNDS;
+                    const patternInterval = isFinalBossBattle ? boss.nextAttackInterval : Math.max(1.55, 4.35 - currentStage * 0.28);
+                    const patternReady = boss.laserCharge === 0 && boss.laserActive === 0;
+                    if (patternReady && boss.attackTimer >= patternInterval) {
+                        boss.attackTimer = 0;
+                        if (isFinalBossBattle) {
+                            boss.currentPattern = 1;
+                            boss.nextAttackInterval = getFinalBossLaserDelay();
+                        } else if (currentStage === 1) {
+                            boss.currentPattern = (boss.currentPattern === 0) ? 2 : 0;
+                        } else {
+                            const patternCount = currentStage >= 3 ? 4 : 3;
+                            boss.currentPattern = (boss.currentPattern + 1) % patternCount;
+                        }
+                    }
+
+                    // --- PATTERN 0: HELFIRE SPIRAL ---
+                    if (boss.currentPattern === 0) {
+                        const spiralFrequency = Math.max(2, 5 - Math.floor(currentStage / 3));
+                        if (frameCount % spiralFrequency === 0) {
+                            const streams = Math.min(7, 2 + Math.floor(currentStage / 1.25));
+                            const speedBoost = 3.8 + currentStage * 0.38;
+                            
+                            for (let i = 0; i < streams; i++) {
+                                const baseAngle = (frameCount * 0.18) + (i * (Math.PI * 2 / streams));
+                                const wobble = Math.sin(frameCount * 0.03 + i) * 0.12;
+                                spawnBossProjectile(baseAngle + wobble, speedBoost + i * 0.18, {
+                                    x: boss.x + Math.sin(i + frameCount * 0.08) * 10,
+                                    y: boss.y + 15,
+                                    radius: 7 + Math.min(3, currentStage * 0.45),
+                                    damage: Math.max(1, Math.floor(1 + currentStage / 3.2)),
+                                    color: '#ef4444',
+                                    curve: (i % 2 === 0 ? 1 : -1) * (0.0025 + currentStage * 0.0007),
+                                    accel: 1.0015 + currentStage * 0.00045,
+                                    wave: currentStage >= 3 ? 0.45 + currentStage * 0.035 : 0
+                                });
+                            }
+                            audio.playLaser();
+                        }
+                    }
+
+                    // --- PATTERN 1: TARGETED CHARGE LASER ---
+                    else if (boss.currentPattern === 1) {
+                        if (boss.laserCharge === 0 && !boss.laserActive) {
+                            const laserTuning = getBossLaserTuning();
+                            boss.laserCharge = laserTuning.chargeFrames;
+                            boss.laserTargetX = clamp(commander.x + (commander.targetX - commander.x) * 0.55, 28, canvas.width - 28);
+                            boss.beamWidth = laserTuning.visualWidth;
+                            boss.laserLethalWidth = laserTuning.lethalWidth;
+                            boss.laserCommanderHit = false;
+                            boss.laserNeedsLayout = false;
+                            boss.laserSweep = isFinalBossBattle
+                                ? (Math.random() < 0.5 ? -1 : 1) * (0.9 + Math.random() * 1.7)
+                                : currentStage >= 4 ? (Math.random() < 0.5 ? -1 : 1) * (0.55 + currentStage * 0.08) : 0;
+                        }
+
+                        if (boss.laserCharge > 0) {
+                            boss.laserCharge--;
+                            if (boss.laserCharge === 0) {
+                                const laserTuning = getBossLaserTuning();
+                                boss.laserActive = laserTuning.activeFrames; 
+                                audio.playExplode();
+                                triggerScreenShake(laserTuning.shake);
+                            }
+                        }
+
+                        if (boss.laserActive > 0) {
+                            boss.laserActive--;
+                            boss.laserTargetX = clamp(boss.laserTargetX + boss.laserSweep, 28, canvas.width - 28);
+                            const beamWidth = boss.beamWidth || Math.min(40, 25 + currentStage * 2.5);
+                            const lethalWidth = boss.laserLethalWidth || Math.max(5, beamWidth * 0.25);
+                            const laserLeft = boss.laserTargetX - lethalWidth;
+                            const laserRight = boss.laserTargetX + lethalWidth;
+                            let removedByLaser = false;
+
+                            for (let j = army.length - 1; j >= 0; j--) {
+                                const soldier = army[j];
+                                const soldierLineHit = Math.abs(soldier.x - boss.laserTargetX) <= lethalWidth + soldier.radius * 0.35;
+                                if (soldierLineHit) {
+                                    army.splice(j, 1);
+                                    spawnSparks(soldier.x, soldier.y, '#ff007f');
+                                    removedByLaser = true;
+                                }
+                            }
+                            if (removedByLaser) {
+                                boss.laserNeedsLayout = true;
+                            }
+
+                            if (commander.x >= laserLeft && commander.x <= laserRight && !boss.laserCommanderHit) {
+                                boss.laserCommanderHit = true;
+                                if (army.length === 0) {
+                                    endStage(false);
+                                    return;
+                                } else {
+                                    const laserTuning = getBossLaserTuning();
+                                    const shieldLoss = Math.floor(army.length * laserTuning.commanderPenalty);
+                                    if (shieldLoss > 0) {
+                                        for (let loss = 0; loss < shieldLoss; loss++) {
+                                            const victim = army[army.length - 1 - loss];
+                                            if (victim) spawnSparks(victim.x, victim.y, '#ff007f');
+                                        }
+                                        army.splice(Math.max(0, army.length - shieldLoss), shieldLoss);
+                                        boss.laserNeedsLayout = true;
+                                        triggerScreenShake(laserTuning.shake);
+                                    }
+                                }
+                            }
+
+                            if (boss.laserActive === 0 && boss.laserNeedsLayout) {
+                                updateArmyLayout();
+                                boss.laserNeedsLayout = false;
+                            }
+                            if (boss.laserActive === 0 && isFinalBossBattle) {
+                                boss.currentPattern = -1;
+                                boss.attackTimer = 0;
+                            }
+                        }
+                    }
+
+                    // --- PATTERN 2: MULTI-TARGET SWARM SHOT ---
+                    else if (boss.currentPattern === 2) {
+                        const swarmFrequency = Math.max(12, 31 - currentStage * 2);
+                        if (frameCount % swarmFrequency === 0) {
+                            const targetAngle = Math.atan2(commander.y - boss.y, commander.x - boss.x);
+                            const spreadCount = Math.min(6, 1 + Math.floor(currentStage / 1.25));
+                            const speedBase = 4.1 + currentStage * 0.34;
+
+                            for (let offset = -spreadCount * 0.25; offset <= spreadCount * 0.25; offset += 0.25) {
+                                const speed = speedBase + Math.abs(offset) * 1.4 + Math.random() * 0.35;
+                                spawnBossProjectile(targetAngle + offset, speed, {
+                                    x: boss.x + Math.sin(offset * 8) * 18,
+                                    y: boss.y + 15,
+                                    radius: 7 + Math.abs(offset) * 3,
+                                    damage: (Math.abs(offset) < 0.01 ? 2 : 1) + Math.floor(currentStage / 4),
+                                    color: '#f97316',
+                                    curve: -offset * 0.003,
+                                    life: 210
+                                });
+                            }
+                            audio.playLaser();
+                        }
+                    }
+
+                    // --- PATTERN 3: HEAVY ARC MORTARS ---
+                    else if (boss.currentPattern === 3) {
+                        const mortarFrequency = Math.max(10, 28 - currentStage * 1.8);
+                        if (frameCount % mortarFrequency === 0) {
+                            const lanes = Math.min(7, 2 + Math.floor(currentStage / 1.1));
+
+                            for (let i = 0; i < lanes; i++) {
+                                const laneOffset = (i - (lanes - 1) / 2) * 42;
+                                const targetX = clamp(commander.x + laneOffset + (Math.random() - 0.5) * 24, 24, canvas.width - 24);
+                                const angle = Math.atan2(commander.y - boss.y, targetX - boss.x);
+                                spawnBossProjectile(angle, 2.9 + Math.random() * 0.9 + currentStage * 0.06, {
+                                    x: boss.x + (Math.random() - 0.5) * 36,
+                                    y: boss.y + 8,
+                                    radius: 9 + Math.random() * 2,
+                                    damage: 2 + Math.floor(currentStage / 3),
+                                    color: '#fb7185',
+                                    gravity: 0.065 + currentStage * 0.01,
+                                    accel: 1.0015,
+                                    life: 260
+                                });
+                            }
+                            audio.playLaser();
+                        }
+                    }
+                }
+
+                // 아군 총알 충돌 및 보스 데미지 처리 (우리편 총알.png 사격)
+                for (let i = bullets.length - 1; i >= 0; i--) {
+                    const b = bullets[i];
+                    b.x += b.vx;
+                    b.y += b.vy;
+
+                    const distToBoss = Math.hypot(b.x - boss.x, b.y - boss.y);
+                    const bossHitRadius = boss.radius * 1.65;
+                    if (boss.active && distToBoss < bossHitRadius + b.size) {
+                        boss.hp -= b.damage;
+                        bullets.splice(i, 1);
+                        spawnSparks(b.x, b.y, b.color || '#00f0ff');
+                        
+                        if (Math.random() < 0.15) triggerScreenShake(2);
+                        updateBossHpBar();
+
+                        if (boss.hp <= 0) {
+                            boss.active = false;
+                            audio.playExplode();
+                            spawnSparks(boss.x, boss.y, '#39ff14');
+                            triggerScreenShake(30);
+                            endStage(true);
+                            return;
+                        }
+                        continue;
+                    }
+
+                    if (b.y < -20) bullets.splice(i, 1);
+                }
+
+                // 보스 레이져.png 투사체 처리 (Safe Reverse Loop)
+                for (let i = bossBullets.length - 1; i >= 0; i--) {
+                    const bb = bossBullets[i];
+                    if (bb.curve) {
+                        const cos = Math.cos(bb.curve);
+                        const sin = Math.sin(bb.curve);
+                        const nextVx = bb.vx * cos - bb.vy * sin;
+                        const nextVy = bb.vx * sin + bb.vy * cos;
+                        bb.vx = nextVx;
+                        bb.vy = nextVy;
+                    }
+                    if (bb.accel && bb.accel !== 1) {
+                        bb.vx *= bb.accel;
+                        bb.vy *= bb.accel;
+                    }
+                    if (bb.gravity) {
+                        bb.vy += bb.gravity;
+                    }
+                    if (bb.trail) {
+                        bb.trail.push({ x: bb.x, y: bb.y });
+                        if (bb.trail.length > 7) bb.trail.shift();
+                    }
+                    const waveDrift = bb.wave ? Math.sin(frameCount * 0.16 + bb.wavePhase) * bb.wave : 0;
+                    bb.x += bb.vx + waveDrift;
+                    bb.y += bb.vy;
+                    bb.life--;
+
+                    let hit = false;
+                    for (let j = army.length - 1; j >= 0; j--) {
+                        const soldier = army[j];
+                        const dist = Math.hypot(bb.x - soldier.x, bb.y - soldier.y);
+                        if (dist < soldier.radius + bb.radius) {
+                            const hitX = soldier.x;
+                            const hitY = soldier.y;
+                            bossBullets.splice(i, 1);
+                            const loss = removeBossBulletDamage(j, bb.damage, bb.color || '#ff007f');
+                            spawnPopupText(hitX, hitY - 18, `-${loss}`, '#ff335f', 'penalty');
+                            audio.playGateWrong();
+                            triggerScreenShake(5); 
+                            hit = true;
+                            break;
+                        }
+                    }
+
+                    if (hit) {
+                        if (army.length <= 0) {
+                            endStage(false);
+                            return;
+                        }
+                        continue;
+                    }
+
+                    if (army.length === 0) {
+                        const distToLeader = Math.hypot(bb.x - commander.x, bb.y - commander.y);
+                        if (distToLeader < commander.radius + bb.radius) {
+                            bossBullets.splice(i, 1);
+                            endStage(false);
+                            return;
+                        }
+                    }
+
+                    if (bb.life <= 0 || bb.y > canvas.height + 30 || bb.x < -35 || bb.x > canvas.width + 35) {
+                        bossBullets.splice(i, 1);
+                    }
+                }
+            }
+
+            // 5. Particles Update
+            for (let i = particles.length - 1; i >= 0; i--) {
+                const p = particles[i];
+                p.x += p.vx;
+                p.y += p.vy;
+                p.alpha -= p.decay;
+                if (p.alpha <= 0) particles.splice(i, 1);
+            }
+
+            // 6. Popup Texts Update
+            for (let i = popupTexts.length - 1; i >= 0; i--) {
+                const pt = popupTexts[i];
+                pt.y += pt.vy;
+                pt.life--;
+                pt.alpha = Math.min(1, pt.life / 18);
+                if (pt.life <= 0) popupTexts.splice(i, 1);
+            }
+        }
+
+        function draw() {
+            frameCount++;
+            
+            // --- 제공 이미지의 분위기만 차용한 생성형 지상전 필드 렌더링 ---
+            drawBattlefieldBackground();
+
+            // 전술 구분 바리케이드 Hazard 선
+            ctx.save();
+            const laneCount = (activeGates && gameState === 'RUNNING') ? activeGates.lanes.length : 2;
+            ctx.strokeStyle = 'rgba(245, 158, 11, 0.15)'; 
+            ctx.lineWidth = 3;
+            ctx.setLineDash([12, 16]);
+            for (let i = 1; i < laneCount; i++) {
+                const lx = (canvas.width / laneCount) * i;
+                ctx.beginPath();
+                ctx.moveTo(lx, 0);
+                ctx.lineTo(lx, canvas.height);
+                ctx.stroke();
+            }
+            ctx.restore();
+
+            // 황사 모래바람 먼지 파편 드로잉
+            if (debrisList.length === 0) {
+                for (let i = 0; i < 50; i++) {
+                    debrisList.push({
+                        x: Math.random() * canvas.width,
+                        y: Math.random() * canvas.height,
+                        size: Math.random() * 3 + 1, 
+                        speed: Math.random() * 1.5 + 0.5,
+                        color: ['#854d0e', '#a16207', '#78350f', '#451a03'][Math.floor(Math.random() * 4)] 
+                    });
+                }
+            }
+
+            debrisList.forEach(star => {
+                star.x -= star.speed * (roadSpeed / 6); 
+                if (star.x < 0) {
+                    star.x = canvas.width;
+                    star.y = Math.random() * canvas.height;
+                }
+                ctx.fillStyle = star.color;
+                ctx.globalAlpha = 0.5;
+                ctx.fillRect(star.x, star.y, star.size, star.size); 
+            });
+            ctx.globalAlpha = 1.0;
+
+            // 1. 이지선다/삼지선다 관문 렌더링
+            if (gameState === 'RUNNING' && activeGates) {
+                const gateH = 50;
+                const lanesNum = activeGates.lanes.length;
+                const laneW = canvas.width / lanesNum;
+
+                activeGates.lanes.forEach((lane, i) => {
+                    const gx = (laneW * i) + 8;
+                    const gw = laneW - 16;
+
+                    ctx.save();
+                    ctx.shadowBlur = 15;
+                    ctx.shadowColor = '#f59e0b';
+                    ctx.fillStyle = 'rgba(245, 158, 11, 0.08)';
+                    ctx.strokeStyle = '#f59e0b';
+                    ctx.lineWidth = 3.5;
+                    ctx.fillRect(gx, activeGates.y, gw, gateH);
+                    ctx.strokeRect(gx, activeGates.y, gw, gateH);
+
+                    // 관문 측면 무늬
+                    ctx.strokeStyle = 'rgba(245, 158, 11, 0.18)';
+                    ctx.lineWidth = 2.5;
+                    ctx.beginPath();
+                    for (let d = 0; d < 18; d += 6) {
+                        ctx.moveTo(gx + d, activeGates.y);
+                        ctx.lineTo(gx + d + 5, activeGates.y + gateH);
+                        ctx.moveTo(gx + gw - d, activeGates.y);
+                        ctx.lineTo(gx + gw - d - 5, activeGates.y + gateH);
+                    }
+                    ctx.stroke();
+
+                    // 숫자 표시 (직접 계산하여 연산 돌파)
+                    const valueText = Number(lane.value).toLocaleString('ko-KR');
+                    const textLen = valueText.length;
+                    const fontSize = textLen >= 7 ? 14 : textLen >= 5 ? 16 : textLen >= 4 ? 18 : 20;
+                    const labelW = Math.min(gw - 20, Math.max(58, textLen * (fontSize * 0.62) + 18));
+                    const labelH = 30;
+                    const labelX = gx + (gw - labelW) / 2;
+                    const labelY = activeGates.y + (gateH - labelH) / 2;
+
+                    ctx.shadowBlur = 0;
+                    ctx.fillStyle = 'rgba(15, 23, 42, 0.72)';
+                    ctx.fillRect(labelX, labelY, labelW, labelH);
+                    ctx.strokeStyle = 'rgba(251, 191, 36, 0.62)';
+                    ctx.lineWidth = 1.8;
+                    ctx.strokeRect(labelX, labelY, labelW, labelH);
+
+                    ctx.fillStyle = '#f8fafc';
+                    ctx.shadowColor = 'rgba(0, 0, 0, 0.35)';
+                    ctx.shadowBlur = 3;
+                    ctx.font = `900 ${fontSize}px "Orbitron", sans-serif`;
+                    ctx.textAlign = 'center';
+                    ctx.textBaseline = 'middle';
+                    ctx.fillText(valueText, gx + gw/2, activeGates.y + gateH/2 + 0.5);
+
+                    ctx.restore();
+                });
+            }
+
+            // 2. 라운드별 고유 보스 본체 진격 렌더링 및 경고선
+            if (boss.active) {
+                const bossProfile = getBossRenderProfile();
+                const bossPose = getBossMarchPose();
+                const bossBox = getBossRenderBox();
+                const bossDrawX = boss.x + bossPose.x;
+                const bossDrawY = boss.y + bossPose.y;
+                const distanceToDefense = commander.y - boss.y;
+
+                // 오버런 경보선 (보스가 아래 방어선과 200px 미만으로 밀착했을 때 전율감 있게 표시)
+                if (distanceToDefense < BOSS_WARNING_DISTANCE) {
+                    const dangerRatio = clamp((BOSS_WARNING_DISTANCE - distanceToDefense) / BOSS_WARNING_DISTANCE, 0, 1);
+                    const tremor = (Math.sin(frameCount * 0.88) * 8 + Math.sin(frameCount * 1.7) * 4) * dangerRatio;
+                    const flash = 0.55 + Math.sin(frameCount * 0.35) * 0.35;
+                    const warningY = commander.y - boss.radius;
+
+                    ctx.save();
+                    ctx.shadowColor = '#ef4444';
+                    ctx.shadowBlur = 18 + dangerRatio * 32;
+                    ctx.setLineDash([14, 10]);
+
+                    for (let i = 0; i < 3; i++) {
+                        ctx.strokeStyle = `rgba(239, 68, 68, ${clamp(flash - i * 0.12, 0.12, 0.95)})`;
+                        ctx.lineWidth = 5 + dangerRatio * 9 - i * 2;
+                        ctx.beginPath();
+                        ctx.moveTo(-20, warningY + tremor + i * 5);
+                        ctx.lineTo(canvas.width + 20, warningY - tremor * 0.45 + i * 5);
+                        ctx.stroke();
+                    }
+                    
+                    ctx.setLineDash([]);
+                    ctx.fillStyle = `rgba(127, 29, 29, ${0.45 + dangerRatio * 0.35})`;
+                    ctx.fillRect(16, 58 + tremor * 0.2, canvas.width - 32, 34);
+                    ctx.strokeStyle = 'rgba(250, 204, 21, 0.75)';
+                    ctx.lineWidth = 2;
+                    ctx.strokeRect(16, 58 + tremor * 0.2, canvas.width - 32, 34);
+                    ctx.fillStyle = '#fff7ed';
+                    ctx.font = '900 14px "Orbitron", "Noto Sans KR", sans-serif';
+                    ctx.textAlign = 'center';
+                    ctx.fillText("⚠️ 방어선 200px 내 접근 · 화력 집중!", canvas.width / 2, 80 + tremor * 0.2);
+                    ctx.restore();
+                }
+
+                drawBossMarchShadow(bossBox, bossPose, bossProfile);
+
+                // 보스 회전 장막 글로우
+                ctx.save();
+                ctx.translate(bossDrawX, bossDrawY);
+                ctx.rotate(boss.shieldAngle);
+                ctx.shadowBlur = 20;
+                ctx.shadowColor = bossProfile.glow;
+                ctx.strokeStyle = bossProfile.glow;
+                ctx.lineWidth = 3.5;
+                ctx.setLineDash([8, 12]);
+                ctx.beginPath();
+                ctx.arc(0, 0, boss.radius * 1.75, 0, Math.PI * 2);
+                ctx.stroke();
+                ctx.restore();
+
+                // 라운드별 각기 다른 보스 이미지 로드 그리기 (완벽한 이미지 드로잉 및 깨짐 폴백)
+                const targetBossImg = getCurrentBossImage();
+                if (isImageReady(targetBossImg)) {
+                    drawNaturalImageCentered(
+                        targetBossImg,
+                        bossDrawX,
+                        bossDrawY,
+                        bossBox.width,
+                        bossBox.height,
+                        {
+                            shadowColor: bossProfile.glow,
+                            shadowBlur: 22,
+                            rotation: bossPose.rotation,
+                            scaleX: bossPose.scaleX,
+                            scaleY: bossPose.scaleY
+                        }
+                    );
+                } else {
+                    // [대규모 보강] 라운드별 외형에 부합하는 화려한 2D 벡터 기하학 구조 폴백 렌더링!
+                    ctx.save();
+                    ctx.translate(bossDrawX, bossDrawY);
+                    ctx.rotate(bossPose.rotation);
+                    ctx.scale(bossPose.scaleX, bossPose.scaleY);
+                    ctx.shadowBlur = 20;
+                    
+                    if (currentStage === 1) {
+                        // 늪지 변종 괴수: 녹색 유독 가스 실루엣과 오염된 유기 촉수 구조
+                        ctx.shadowColor = '#16a34a';
+                        ctx.fillStyle = '#14532d';
+                        ctx.beginPath();
+                        ctx.arc(0, 0, boss.radius, 0, Math.PI*2);
+                        ctx.fill();
+                        // 오염 핵
+                        ctx.fillStyle = '#4ade80';
+                        ctx.beginPath();
+                        ctx.arc(-10, -5, 8, 0, Math.PI*2);
+                        ctx.arc(10, 5, 10, 0, Math.PI*2);
+                        ctx.fill();
+                    } 
+                    else if (currentStage === 2) {
+                        // 공허 심연 군주: 보랏빛 촉수형태의 코어와 눈
+                        ctx.shadowColor = '#c084fc';
+                        ctx.fillStyle = '#3b0764';
+                        ctx.beginPath();
+                        for(let i=0; i<8; i++){
+                            const angle = (Math.PI/4)*i + frameCount*0.03;
+                            ctx.lineTo(Math.cos(angle)*boss.radius, Math.sin(angle)*boss.radius);
+                        }
+                        ctx.closePath();
+                        ctx.fill();
+                        // 붉은 조준안안
+                        ctx.fillStyle = '#ef4444';
+                        ctx.beginPath();
+                        ctx.arc(0, 0, 8, 0, Math.PI*2);
+                        ctx.fill();
+                    } 
+                    else if (currentStage === 3) {
+                        // 기갑 강철 메카: 거대한 중장갑 기계 판갑과 리볼버식 포신
+                        ctx.shadowColor = '#ea580c';
+                        ctx.fillStyle = '#334155';
+                        ctx.strokeStyle = '#f97316';
+                        ctx.lineWidth = 4;
+                        ctx.fillRect(-boss.radius, -boss.radius+10, boss.radius*2, boss.radius*2-20);
+                        // 전면 헤드 라이트
+                        ctx.fillStyle = '#ef4444';
+                        ctx.fillRect(-15, -15, 30, 8);
+                    } 
+                    else {
+                        // 초중 기갑 스파이더 탱크: 8각 형상의 다각 다리 프레임 및 거대 대포 탑재
+                        ctx.shadowColor = '#dc2626';
+                        ctx.fillStyle = '#1e293b';
+                        ctx.strokeStyle = '#ef4444';
+                        ctx.lineWidth = 5;
+                        ctx.beginPath();
+                        for(let i=0; i<6; i++){
+                            const angle = (Math.PI/3)*i;
+                            ctx.lineTo(Math.cos(angle)*boss.radius, Math.sin(angle)*boss.radius);
+                        }
+                        ctx.closePath();
+                        ctx.fill();
+                        ctx.stroke();
+                        // 대포구멍
+                        ctx.fillStyle = '#0f172a';
+                        ctx.beginPath();
+                        ctx.arc(0, boss.radius - 10, 12, 0, Math.PI*2);
+                        ctx.fill();
+                    }
+                    ctx.restore();
+                }
+
+                // 레이저 조준 라인
+                if (boss.laserCharge > 0) {
+                    ctx.save();
+                    ctx.strokeStyle = 'rgba(255, 0, 127, 0.4)';
+                    ctx.lineWidth = 2;
+                    ctx.setLineDash([5, 5]);
+                    ctx.beginPath();
+                    ctx.moveTo(boss.laserTargetX, 0);
+                    ctx.lineTo(boss.laserTargetX, canvas.height);
+                    ctx.stroke();
+                    ctx.restore();
+                }
+
+                // 레이저 발사
+                if (boss.laserActive > 0) {
+                    ctx.save();
+                    const beamWidth = boss.beamWidth || 25;
+                    const lethalWidth = boss.laserLethalWidth || Math.max(5, beamWidth * 0.25);
+                    const coreWidth = Math.max(6, lethalWidth * 2);
+                    ctx.shadowBlur = 25;
+                    ctx.shadowColor = '#ff007f';
+                    ctx.fillStyle = 'rgba(255, 0, 127, 0.5)';
+                    ctx.fillRect(boss.laserTargetX - beamWidth, 0, beamWidth * 2, canvas.height);
+                    ctx.fillStyle = '#ffffff';
+                    ctx.fillRect(boss.laserTargetX - coreWidth / 2, 0, coreWidth, canvas.height);
+                    ctx.restore();
+                }
+            }
+
+            // 3. 우리편 총알.png 투사체 렌더링
+            bullets.forEach(b => {
+                if (isImageReady(imgPlayerBullet)) {
+                    // 비행 궤적 라디안 각도를 반영해 총알 진행 방향과 정면을 일치
+                    const bulletAngle = Math.atan2(b.vy, b.vx) + PLAYER_BULLET_ROTATION_OFFSET;
+                    const bulletScale = b.commander ? 8.2 : 6.4;
+                    drawRotatedImage(imgPlayerBullet, b.x, b.y, b.size * bulletScale, b.size * bulletScale, bulletAngle);
+                } else {
+                    // 실탄 느낌이 충만한 오렌지색 돌격 예광탄 폴백 드로잉
+                    ctx.save();
+                    ctx.shadowBlur = 10;
+                    ctx.shadowColor = b.color || '#f97316';
+                    ctx.fillStyle = b.commander ? '#ecfccb' : '#fff';
+                    ctx.strokeStyle = b.color || '#f97316';
+                    ctx.lineWidth = 2;
+                    ctx.beginPath();
+                    ctx.arc(b.x, b.y, b.size - 1, 0, Math.PI * 2);
+                    ctx.fill();
+                    ctx.stroke();
+                    ctx.restore();
+                }
+            });
+
+            // 4. 보스 레이져.png 적군 메테오 포탄 렌더링
+            bossBullets.forEach(bb => {
+                if (bb.trail && bb.trail.length > 1) {
+                    ctx.save();
+                    ctx.globalAlpha = 0.24;
+                    ctx.strokeStyle = bb.color || '#dc2626';
+                    ctx.lineWidth = Math.max(3, bb.radius * 0.42);
+                    ctx.lineCap = 'round';
+                    ctx.beginPath();
+                    ctx.moveTo(bb.trail[0].x, bb.trail[0].y);
+                    for (let i = 1; i < bb.trail.length; i++) {
+                        ctx.lineTo(bb.trail[i].x, bb.trail[i].y);
+                    }
+                    ctx.stroke();
+                    ctx.restore();
+                }
+
+                if (isImageReady(imgBossLaser)) {
+                    // vx/vy 벡터 비례 방향으로 회전하되, 원본 메테오 헤드가 왼쪽을 향하는 기준각을 보정
+                    const bulletAngle = Math.atan2(bb.vy, bb.vx) + BOSS_BULLET_ROTATION_OFFSET;
+                    drawRotatedImage(imgBossLaser, bb.x, bb.y, bb.radius * 5.4, bb.radius * 5.4, bulletAngle);
+                } else {
+                    // 파괴적인 플라즈마 화염 메테오 포탄 폴백 드로잉
+                    ctx.save();
+                    ctx.shadowBlur = 12;
+                    ctx.shadowColor = bb.color || '#dc2626';
+                    ctx.fillStyle = bb.color || '#ef4444';
+                    ctx.beginPath();
+                    ctx.arc(bb.x, bb.y, bb.radius, 0, Math.PI * 2);
+                    ctx.fill();
+                    // 불꽃의 고온 코어
+                    ctx.fillStyle = '#fff';
+                    ctx.beginPath();
+                    ctx.arc(bb.x - bb.vx * 1.5, bb.y - bb.vy * 1.5, bb.radius * 0.5, 0, Math.PI * 2);
+                    ctx.fill();
+                    ctx.restore();
+                }
+            });
+
+            // 5. 아군 정예 병사 그리기: 사령관 뒤/아래에 배치
+            army.forEach(s => s.draw());
+
+            // 6. 사령관.png 헤드 리더 렌더링: 항상 최전면
+            if (isImageReady(imgCommander)) {
+                drawNaturalImageCentered(
+                    imgCommander,
+                    commander.x,
+                    commander.y,
+                    commander.radius * 2 * COMMANDER_RENDER_SCALE,
+                    commander.radius * 2 * COMMANDER_RENDER_SCALE,
+                    { shadowColor: 'rgba(132, 204, 22, 0.65)', shadowBlur: 11 }
+                );
+            } else {
+                // [대규모 보강] 늠름한 위용의 전술 정예 지참군 사령관 코스튬 폴백 드로잉
+                ctx.save();
+                ctx.translate(commander.x, commander.y);
+                ctx.shadowBlur = 15;
+                ctx.shadowColor = '#84cc16'; 
+                
+                // 사막용 전술 머드브라운 장외 망토
+                ctx.fillStyle = '#78350f';
+                ctx.beginPath();
+                ctx.moveTo(-10, 10);
+                ctx.lineTo(10, 10);
+                ctx.lineTo(15, 26);
+                ctx.lineTo(-15, 26);
+                ctx.closePath();
+                ctx.fill();
+
+                // 전술 올리브 드랍 기갑 슈트
+                ctx.fillStyle = '#14532d';
+                ctx.fillRect(-11, 2, 22, 9);
+
+                // 지휘관 헬멧 바이저 안면부
+                ctx.fillStyle = '#0f172a';
+                ctx.strokeStyle = '#84cc16';
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                ctx.arc(0, -4, 9, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.stroke();
+
+                // 붉은 조준 바이저 고글
+                ctx.fillStyle = '#ef4444';
+                ctx.fillRect(-5, -6, 10, 2);
+
+                ctx.restore();
+            }
+
+            // 7. 파티클 및 팝업
+            particles.forEach(p => {
+                ctx.save();
+                ctx.globalAlpha = p.alpha;
+                ctx.fillStyle = p.color;
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.restore();
+            });
+            ctx.globalAlpha = 1.0;
+
+            popupTexts.forEach(pt => {
+                ctx.save();
+                ctx.globalAlpha = pt.alpha;
+                ctx.font = '900 15px "Orbitron", "Noto Sans KR", sans-serif';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+
+                const metrics = ctx.measureText(pt.text);
+                const boxW = Math.min(canvas.width - 28, Math.max(138, metrics.width + 34));
+                const boxH = 32;
+                const drawX = clamp(pt.x, boxW / 2 + 8, canvas.width - boxW / 2 - 8);
+                const boxX = drawX - boxW / 2;
+                const boxY = pt.y - boxH / 2;
+                const isPenalty = pt.kind === 'penalty';
+                const isReward = pt.kind === 'reward';
+
+                ctx.shadowBlur = isPenalty ? 18 : 16;
+                ctx.shadowColor = isPenalty ? 'rgba(255, 0, 80, 0.75)' : 'rgba(57, 255, 20, 0.58)';
+                ctx.fillStyle = isPenalty
+                    ? 'rgba(69, 10, 10, 0.86)'
+                    : isReward ? 'rgba(6, 47, 42, 0.86)' : 'rgba(41, 37, 36, 0.86)';
+                ctx.fillRect(boxX, boxY, boxW, boxH);
+
+                ctx.shadowBlur = 0;
+                ctx.strokeStyle = isPenalty
+                    ? 'rgba(248, 113, 113, 0.92)'
+                    : isReward ? 'rgba(132, 204, 22, 0.92)' : 'rgba(251, 191, 36, 0.82)';
+                ctx.lineWidth = 2.4;
+                ctx.strokeRect(boxX, boxY, boxW, boxH);
+
+                ctx.fillStyle = pt.color;
+                ctx.shadowBlur = 5;
+                ctx.shadowColor = 'rgba(0, 0, 0, 0.85)';
+                ctx.fillText(pt.text, drawX, pt.y + 1);
+                ctx.restore();
+            });
+        }
+
+        // main tick loop
+        function mainTick() {
+            update();
+            draw();
+            requestAnimationFrame(mainTick);
+        }
+
+        window.onload = function() {
+            resizeCanvas();
+            renderShopStats();
+            updateHud();
+            mainTick();
+        };
+
+    </script>
+</body>
+</html>
