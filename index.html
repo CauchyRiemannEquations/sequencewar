@@ -38,6 +38,36 @@
             box-shadow: 0 0 26px rgba(245, 158, 11, 0.44), 0 18px 70px rgba(0, 0, 0, 0.75);
             border-color: #f59e0b;
         }
+        html,
+        body {
+            width: 100%;
+            height: 100%;
+            min-height: 100svh;
+            overflow: hidden;
+        }
+        body {
+            min-height: 100dvh;
+            padding: 6px !important;
+        }
+        #game-container {
+            height: min(91svh, 720px) !important;
+            max-height: calc(100dvh - 16px) !important;
+        }
+        @media (max-width: 640px) {
+            body {
+                justify-content: flex-start !important;
+                padding: 5px !important;
+            }
+            #game-container {
+                width: min(100%, 430px) !important;
+                height: min(88svh, 660px) !important;
+                max-height: calc(100dvh - 22px) !important;
+                border-radius: 12px !important;
+            }
+            #hud {
+                padding: 10px !important;
+            }
+        }
         .battle-shell::before {
             content: "";
             position: absolute;
@@ -144,10 +174,10 @@
         }
     </style>
 </head>
-<body class="h-screen w-screen flex flex-col items-center justify-center p-2 md:p-6 text-white overflow-hidden">
+<body class="w-screen flex flex-col items-center justify-center p-2 md:p-6 text-white overflow-hidden">
 
     <!-- 메인 게임 가로 뷰포트 컨테이너 -->
-    <div id="game-container" class="battle-shell relative w-full max-w-md h-[95vh] max-h-[750px] bg-[#141210] border-2 border-[#f59e0b] rounded-2xl overflow-hidden neon-glow-military flex flex-col shadow-2xl">
+    <div id="game-container" class="battle-shell relative w-full max-w-md bg-[#141210] border-2 border-[#f59e0b] rounded-2xl overflow-hidden neon-glow-military flex flex-col shadow-2xl">
         
         <!-- 상단 HUD -->
         <div id="hud" class="absolute top-0 left-0 w-full p-4 flex flex-col gap-2 z-10 bg-gradient-to-b from-[#0c0b09] to-transparent pointer-events-none opacity-0 transition-opacity duration-300">
@@ -650,6 +680,18 @@
             return Math.max(min, Math.min(max, value));
         }
 
+        function getPlayfieldSpeedScale() {
+            return clamp(canvas.height / 780, 0.58, 0.86);
+        }
+
+        function getBossTravelSpeedScale() {
+            return clamp(canvas.height / 800, 0.54, 0.82);
+        }
+
+        function getProjectileSpeedScale() {
+            return clamp(canvas.height / 820, 0.66, 0.9);
+        }
+
         function getDrawableAsset(img) {
             if (!img) return null;
             if (img.requiresCutout) {
@@ -895,17 +937,18 @@
 
         function spawnBossProjectile(angle, speed, options = {}) {
             const radius = options.radius || 8;
+            const speedScale = getProjectileSpeedScale();
             bossBullets.push({
                 x: options.x ?? boss.x,
                 y: options.y ?? boss.y + 15,
-                vx: Math.cos(angle) * speed,
-                vy: Math.sin(angle) * speed,
+                vx: Math.cos(angle) * speed * speedScale,
+                vy: Math.sin(angle) * speed * speedScale,
                 radius,
                 damage: options.damage || 1,
                 color: options.color || '#ef4444',
                 curve: options.curve || 0,
                 accel: options.accel || 1,
-                gravity: options.gravity || 0,
+                gravity: (options.gravity || 0) * speedScale,
                 wave: options.wave || 0,
                 wavePhase: options.wavePhase || Math.random() * Math.PI * 2,
                 life: options.life || 240,
@@ -963,7 +1006,9 @@
         function drawBattlefieldBackground() {
             const w = canvas.width;
             const h = canvas.height;
-            const scrollSpeed = gameState === 'RUNNING' ? roadSpeed : (gameState === 'BOSS_BATTLE' ? 1.15 : 0.42);
+            const scrollSpeed = gameState === 'RUNNING'
+                ? roadSpeed * getPlayfieldSpeedScale()
+                : (gameState === 'BOSS_BATTLE' ? 1.15 * getBossTravelSpeedScale() : 0.42);
             bgScrollY = (bgScrollY + scrollSpeed) % 96;
 
             const base = ctx.createLinearGradient(0, 0, 0, h);
@@ -1067,7 +1112,7 @@
 
         // Current Stage runtime variables
         let gameState = 'MENU'; // MENU, RUNNING, BOSS_WARNING, BOSS_BATTLE, PAUSED, FINISHED
-        let roadSpeed = 6.2;    
+        let roadSpeed = 5.25;    
         let weaponLevel = 1;    
         let frameCount = 0;     
         let shakeTimer = 0;     
@@ -1206,6 +1251,9 @@
             updateArmyLayout();
         }
         window.addEventListener('resize', resizeCanvas);
+        if (window.visualViewport) {
+            window.visualViewport.addEventListener('resize', resizeCanvas);
+        }
         resizeCanvas();
 
         class Soldier {
@@ -1977,7 +2025,7 @@
             // 3. RUNNING PHASE (이지선다 관문 통과)
             if (gameState === 'RUNNING') {
                 if (activeGates) {
-                    activeGates.y += roadSpeed;
+                    activeGates.y += roadSpeed * getPlayfieldSpeedScale();
                     
                     if (!activeGates.passed && activeGates.y >= commander.y - 15) {
                         activeGates.passed = true;
@@ -2051,9 +2099,10 @@
                 boss.battleFrame++;
                 const motionProfile = getBossMotionProfile();
                 if (boss.y < boss.spawnTargetY) {
-                    boss.y += Math.min(motionProfile.entrySpeed, boss.spawnTargetY - boss.y);
+                    const entryStep = motionProfile.entrySpeed * getBossTravelSpeedScale();
+                    boss.y += Math.min(entryStep, boss.spawnTargetY - boss.y);
                 } else {
-                    boss.y += boss.speed;
+                    boss.y += boss.speed * getBossTravelSpeedScale();
                 }
 
                 // 패배 메커니즘: 보스가 아군 사령관 방어선(Y 좌표)을 통과하는 순간 방어막 붕괴 패배 처리
