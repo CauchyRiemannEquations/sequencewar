@@ -681,15 +681,15 @@
         }
 
         function getPlayfieldSpeedScale() {
-            return clamp(canvas.height / 780, 0.58, 0.86);
+            return clamp(canvas.height / 980, 0.38, 0.74);
         }
 
         function getBossTravelSpeedScale() {
-            return clamp(canvas.height / 800, 0.54, 0.82);
+            return clamp(canvas.height / 1020, 0.36, 0.7);
         }
 
         function getProjectileSpeedScale() {
-            return clamp(canvas.height / 820, 0.66, 0.9);
+            return clamp(canvas.height / 980, 0.46, 0.78);
         }
 
         function getDrawableAsset(img) {
@@ -1112,7 +1112,7 @@
 
         // Current Stage runtime variables
         let gameState = 'MENU'; // MENU, RUNNING, BOSS_WARNING, BOSS_BATTLE, PAUSED, FINISHED
-        let roadSpeed = 5.25;    
+        let roadSpeed = 4.75;    
         let weaponLevel = 1;    
         let frameCount = 0;     
         let shakeTimer = 0;     
