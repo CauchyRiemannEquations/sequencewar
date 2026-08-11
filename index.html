@@ -106,6 +106,7 @@
             <div class="menu-actions">
                 <button id="start-btn" class="btn-primary">출격 — Stage <span id="current-stage-num">1</span></button>
                 <span class="menu-hint">드래그 또는 ← → 키로 부대를 움직입니다</span>
+                <button id="reset-progress-btn" class="btn-ghost">처음부터 다시 시작 (진행 초기화)</button>
             </div>
         </div>
 
@@ -171,6 +172,19 @@
             <h4>골드가 부족해요</h4>
             <p>스테이지를 클리어하면 골드를 얻을 수 있습니다.</p>
             <button id="alert-close" class="btn-alert">확인</button>
+        </div>
+    </div>
+
+    <!-- 진행 초기화 확인 모달 -->
+    <div id="reset-confirm" class="modal">
+        <div class="modal-card modal-card-warn">
+            <div class="modal-icon modal-icon-warn">↺</div>
+            <h4>처음부터 시작할까요?</h4>
+            <p>골드, 업그레이드, 스테이지 진행이 초기화됩니다.<br>최고 기록·정답률·최다 콤보는 남습니다.</p>
+            <div class="modal-actions">
+                <button id="reset-confirm-yes" class="btn-danger">초기화하고 새 시작</button>
+                <button id="reset-confirm-no" class="btn-secondary">취소</button>
+            </div>
         </div>
     </div>
 
