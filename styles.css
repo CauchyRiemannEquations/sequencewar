@@ -126,14 +126,14 @@ button:active {
 
 @media (max-width: 640px) {
     body {
-        justify-content: flex-start;
         padding: 5px;
     }
 
+    /* 세로로 긴 화면에서도 상단에 붙지 않고 화면을 거의 채우도록 */
     #game-container {
         width: min(100%, 430px);
-        height: min(88svh, 660px);
-        max-height: calc(100dvh - 22px);
+        height: min(93svh, 900px);
+        max-height: calc(100dvh - 12px);
         border-radius: 12px;
     }
 
