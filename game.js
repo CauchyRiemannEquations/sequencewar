@@ -2866,4 +2866,9 @@ window.onload = function() {
     renderStatsPanel();
     updateHud();
     requestAnimationFrame(mainTick);
+
+    // 설치형 웹앱 + 오프라인 실행 (지원 환경에서만)
+    if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('sw.js').catch(() => {});
+    }
 };
