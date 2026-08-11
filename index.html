@@ -186,7 +186,7 @@
             <div id="hud-sequence-section" class="flex flex-col gap-2">
                 <div class="flex justify-between items-center">
                     <div class="flex flex-col">
-                        <span class="text-[10px] text-gray-400 font-bold uppercase tracking-wider">미션 전술 수열</span>
+                        <span class="text-[10px] text-gray-400 font-bold uppercase tracking-wider">수열 규칙</span>
                         <span id="seq-rule" class="text-xs md:text-sm text-[#f59e0b] font-extrabold tracking-tight">등차수열 (+2)</span>
                     </div>
                     <div class="flex flex-col items-end">
@@ -197,8 +197,8 @@
 
                 <!-- 수열 흐름 및 정답 가리기 적용 -->
                 <div class="bg-black/90 border border-amber-900/85 p-3 rounded-xl flex flex-col items-center justify-center text-center pointer-events-auto">
-                    <span class="text-[10px] text-gray-400 font-bold uppercase tracking-wider">전술 좌표를 연산하세요</span>
-                    <span id="seq-history" class="font-orbitron text-lg md:text-xl font-black text-amber-300 leading-tight mt-0.5">2 → 4 → 6 → ?</span>
+                    <span class="text-[10px] text-gray-400 font-bold uppercase tracking-wider">?에 들어갈 숫자는?</span>
+                    <span id="seq-history" class="font-orbitron text-2xl md:text-3xl font-black text-amber-300 leading-tight mt-0.5">2 → 4 → 6 → ?</span>
                     <span id="seq-target" class="hidden">?</span>
                 </div>
 
@@ -232,13 +232,13 @@
                 <h1 class="font-orbitron text-3xl md:text-4xl font-black mt-3 tracking-tighter bg-gradient-to-r from-[#f59e0b] via-[#84cc16] to-[#06b6d4] bg-clip-text text-transparent">
                     SEQUENCE WAR
                 </h1>
-                <p class="text-[11px] text-gray-400 mt-1">지휘관과 병사들을 정렬하여 다가오는 암산 관문과 거대 보스를 구축하세요!</p>
+                <p class="text-[11px] text-gray-400 mt-1">수열의 다음 숫자를 맞혀 병력을 모으고, 스테이지 끝의 보스를 막아내세요.</p>
             </div>
 
             <!-- 업그레이드 상점 영역 -->
             <div class="tactical-panel w-full bg-stone-900/30 border border-amber-900/40 rounded-2xl p-4 my-4 flex flex-col gap-2.5">
                 <h3 class="text-xs font-black text-yellow-500 uppercase tracking-wider flex items-center justify-between">
-                    <span><i class="fa-solid fa-circle-arrow-up mr-1"></i> 전술 기지 보급소</span>
+                    <span><i class="fa-solid fa-circle-arrow-up mr-1"></i> 업그레이드</span>
                     <span id="shop-gold" class="text-yellow-400 font-orbitron"><i class="fa-solid fa-coins mr-1"></i>0</span>
                 </h3>
                 
@@ -249,8 +249,8 @@
                             <i class="fa-solid fa-user-plus"></i>
                         </div>
                         <div class="text-left">
-                            <span class="text-xs font-bold block text-white">초기 돌격병 증원</span>
-                            <span id="desc-start-unit" class="text-[10px] text-gray-400">시작 인원: 5명</span>
+                            <span class="text-xs font-bold block text-white">시작 병력</span>
+                            <span id="desc-start-unit" class="text-[10px] text-gray-400">시작 병력: 5명</span>
                         </div>
                     </div>
                     <span id="cost-start-unit" class="px-2.5 py-1 bg-yellow-500/20 text-yellow-400 text-xs font-bold rounded-lg border border-yellow-500/30">
@@ -265,8 +265,8 @@
                             <i class="fa-solid fa-bolt"></i>
                         </div>
                         <div class="text-left">
-                            <span class="text-xs font-bold block text-white">화기 연사 속도</span>
-                            <span id="desc-fire-rate" class="text-[10px] text-gray-400">발사 대기: 0.4초</span>
+                            <span class="text-xs font-bold block text-white">연사 속도</span>
+                            <span id="desc-fire-rate" class="text-[10px] text-gray-400">발사 간격: 0.45초</span>
                         </div>
                     </div>
                     <span id="cost-fire-rate" class="px-2.5 py-1 bg-yellow-500/20 text-yellow-400 text-xs font-bold rounded-lg border border-yellow-500/30">
@@ -281,8 +281,8 @@
                             <i class="fa-solid fa-hand-holding-dollar"></i>
                         </div>
                         <div class="text-left">
-                            <span class="text-xs font-bold block text-white">작전 예산 보너스</span>
-                            <span id="desc-gold-gain" class="text-[10px] text-gray-400">골드 배율: x1.0</span>
+                            <span class="text-xs font-bold block text-white">골드 획득량</span>
+                            <span id="desc-gold-gain" class="text-[10px] text-gray-400">획득 배율: x1.00</span>
                         </div>
                     </div>
                     <span id="cost-gold-gain" class="px-2.5 py-1 bg-yellow-500/20 text-yellow-400 text-xs font-bold rounded-lg border border-yellow-500/30">
@@ -294,9 +294,9 @@
             <!-- 플레이 버튼 -->
             <div class="w-full flex flex-col gap-2 mb-4">
                 <button id="start-btn" class="w-full py-4 bg-gradient-to-r from-[#84cc16] to-[#f59e0b] text-black font-black text-lg rounded-xl shadow-[0_0_20px_rgba(245,158,11,0.4)] hover:brightness-110 active:scale-95 transition-all">
-                    작전 개시 (Stage <span id="current-stage-num">1</span>) <i class="fa-solid fa-crosshairs ml-1"></i>
+                    출격 — Stage <span id="current-stage-num">1</span> <i class="fa-solid fa-crosshairs ml-1"></i>
                 </button>
-                <span class="text-[10px] text-gray-500"><i class="fa-solid fa-computer-mouse"></i> 사령부 부대를 조종해 전진하세요</span>
+                <span class="text-[10px] text-gray-500"><i class="fa-solid fa-computer-mouse"></i> 드래그 또는 ← → 키로 부대를 움직입니다</span>
             </div>
         </div>
 
@@ -309,27 +309,27 @@
             <h2 id="result-title" class="font-orbitron text-4xl font-black text-[#39ff14] mb-2 tracking-wide uppercase">
                 VICTORY
             </h2>
-            <p id="result-desc" class="text-gray-400 text-sm mb-6">보스 격퇴 성공! 연합군 승리.</p>
+            <p id="result-desc" class="text-gray-400 text-sm mb-6">보스 격파!</p>
 
-            <!-- 획득 전리품 정보 -->
+            <!-- 획득 보상 정보 -->
             <div class="result-card bg-stone-900/60 p-5 rounded-2xl border border-amber-500/30 max-w-xs w-full mb-8">
-                <div class="text-gray-400 text-xs font-bold uppercase tracking-wider mb-1">획득한 작전 예산</div>
+                <div class="text-gray-400 text-xs font-bold uppercase tracking-wider mb-1">획득 골드</div>
                 <div id="reward-gold" class="font-orbitron text-3xl font-extrabold text-yellow-400 mb-4">
                     <i class="fa-solid fa-coins mr-1"></i>+120
                 </div>
                 
                 <div class="flex justify-between text-xs text-gray-300 border-t border-amber-900/50 pt-3">
-                    <span>최종 잔존 병력</span>
+                    <span>남은 병력</span>
                     <span id="final-army-size" class="font-bold text-amber-500">54명</span>
                 </div>
             </div>
 
             <div class="flex gap-4 w-full max-w-xs">
                 <button id="result-action-btn" class="flex-1 py-3 bg-gradient-to-r from-[#84cc16] to-[#f59e0b] text-black font-black text-sm rounded-xl shadow-[0_0_15px_rgba(245,158,11,0.4)] hover:brightness-110 active:scale-95 transition-all">
-                    다음 구역으로
+                    다음 스테이지
                 </button>
                 <button id="result-menu-btn" class="px-5 py-3 bg-stone-900/80 hover:bg-stone-800 text-white font-bold text-sm rounded-xl border border-amber-500/30 transition-all">
-                    작전 본부로
+                    메뉴로
                 </button>
             </div>
         </div>
@@ -355,14 +355,13 @@
                 <button id="hud-pause" class="w-8 h-8 rounded-lg bg-stone-950/60 hover:bg-stone-900 border border-amber-900/40 flex items-center justify-center text-gray-400 hover:text-white transition-all">
                     <i class="fa-solid fa-pause text-xs"></i>
                 </button>
-                <button id="hud-mute" class="w-8 h-8 rounded-lg bg-stone-950/60 hover:bg-stone-900 border border-amber-900/40 flex items-center justify-center text-gray-400 hover:text-white transition-all">
-                    <i id="mute-icon" class="fa-solid fa-volume-high text-xs"></i>
-                </button>
             </div>
             <div class="text-[10px] text-gray-400 flex items-center gap-1">
                 <span id="army-size-text" class="text-amber-500 font-bold font-orbitron">ARMY: 0</span>
                 <span class="text-gray-600">|</span>
                 <span id="weapon-lvl-display" class="text-green-500 font-bold font-orbitron">WEAPON: LV.1</span>
+                <span id="combo-sep" class="text-gray-600 hidden">|</span>
+                <span id="combo-display" class="text-pink-400 font-bold font-orbitron hidden">COMBO x2</span>
             </div>
         </div>
 
@@ -372,8 +371,8 @@
     <div id="custom-alert" class="fixed inset-0 bg-black/80 flex items-center justify-center p-4 z-50 transition-opacity duration-200 opacity-0 pointer-events-none">
         <div class="bg-[#12052c] border-2 border-pink-500 rounded-2xl max-w-xs w-full p-5 text-center shadow-[0_0_20px_rgba(255,0,127,0.4)]">
             <i class="fa-solid fa-coins text-4xl text-yellow-400 mb-2"></i>
-            <h4 class="text-base font-black text-white mb-1">골드가 부족합니다!</h4>
-            <p class="text-xs text-gray-400 mb-4 leading-relaxed">수열 관문을 통과하고 보스를 쓰러트려 골드를 획득하세요.</p>
+            <h4 class="text-base font-black text-white mb-1">골드가 부족해요</h4>
+            <p class="text-xs text-gray-400 mb-4 leading-relaxed">스테이지를 클리어하면 골드를 얻을 수 있습니다.</p>
             <button id="alert-close" class="px-6 py-2 bg-pink-600 hover:bg-pink-500 text-white font-bold text-xs rounded-lg transition-all">
                 확인
             </button>
@@ -1124,14 +1123,45 @@
             fireRate: 0,
             goldGain: 0
         };
-        let resetProgressAfterEnding = false;
+
+        const SAVE_KEY = 'sequence-war-save-v1';
+
+        function saveProgress() {
+            try {
+                localStorage.setItem(SAVE_KEY, JSON.stringify({
+                    gold: saveGold,
+                    stage: currentStage,
+                    upgrades: upgradeLevels
+                }));
+            } catch (error) {
+                // 시크릿 모드 등 저장 불가 환경에서는 그냥 세션 플레이로 진행
+            }
+        }
+
+        function loadProgress() {
+            try {
+                const raw = localStorage.getItem(SAVE_KEY);
+                if (!raw) return;
+                const data = JSON.parse(raw);
+                saveGold = Math.max(0, Math.floor(Number(data.gold) || 0));
+                currentStage = clamp(Math.floor(Number(data.stage) || 1), 1, TOTAL_ROUNDS);
+                if (data.upgrades) {
+                    upgradeLevels.startUnit = Math.max(0, Math.floor(Number(data.upgrades.startUnit) || 0));
+                    upgradeLevels.fireRate = clamp(Math.floor(Number(data.upgrades.fireRate) || 0), 0, 6);
+                    upgradeLevels.goldGain = Math.max(0, Math.floor(Number(data.upgrades.goldGain) || 0));
+                }
+            } catch (error) {
+                // 저장 데이터가 깨져 있으면 새 게임으로 시작
+            }
+        }
 
         // Current Stage runtime variables
         let gameState = 'MENU'; // MENU, RUNNING, BOSS_WARNING, BOSS_BATTLE, PAUSED, FINISHED
         let roadSpeed = 4.75;    
-        let weaponLevel = 1;    
-        let frameCount = 0;     
-        let shakeTimer = 0;     
+        let weaponLevel = 1;
+        let frameCount = 0;
+        let shakeTimer = 0;
+        let comboCount = 0;     // 연속 정답 수
 
         // Background scroll offset for "배경.jpg"
         let bgScrollY = 0;
@@ -1505,35 +1535,67 @@
             seq.targetValue = targetValue;
         }
 
-        // 증가수열/감소수열 표기를 배제하고 등차/등비 표준형 안에서 변주
-        function generateSequenceForStage() {
-            const maxGatesCount = 5 + Math.min(currentStage, 5); 
-            const typeRoll = Math.random(); 
-            const seq = { gatePassedCount: 0, maxGates: maxGatesCount };
+        // 다음 항 계산 (기본 3종 수열 전용 — 가운데 항 가리기 표시에 사용)
+        function nextTermOf(seq, value) {
+            if (seq.type === 'geometric') return value * seq.r;
+            if (seq.type === 'subtraction') return Math.max(0, value - seq.d);
+            return value + seq.d;
+        }
 
-            if (typeRoll < 0.42) {
-                seq.type = 'arithmetic';
+        function generateSequenceForStage() {
+            const maxGatesCount = 5 + Math.min(currentStage, 5);
+            // 3스테이지부터는 규칙의 상세 파라미터(공차/공비)를 숨겨 직접 추론하게 한다
+            const hideParams = currentStage >= 3;
+            const seq = { gatePassedCount: 0, maxGates: maxGatesCount, displayMode: 'next' };
+
+            const typePool = ['arithmetic', 'arithmetic', 'geometric', 'subtraction'];
+            if (currentStage >= 4) typePool.push('stepped', 'stepped');
+            if (currentStage >= 6) typePool.push('fibonacci', 'fibonacci');
+            seq.type = typePool[Math.floor(Math.random() * typePool.length)];
+
+            if (seq.type === 'arithmetic') {
                 const possibleDiffs = currentStage >= 5 ? [2, 3, 4, 5, 6, 7, 8, 9] : [2, 3, 4, 5, 6];
                 seq.d = possibleDiffs[Math.floor(Math.random() * possibleDiffs.length)];
                 const start = Math.floor(Math.random() * (5 + Math.min(currentStage, 5))) + 1;
                 setSequenceWindow(seq, [start, start + seq.d, start + seq.d * 2], start + seq.d * 3);
-                seq.ruleDescription = `등차수열 (공차 +${seq.d})`;
-            } 
-            else if (typeRoll < 0.72) {
-                seq.type = 'geometric';
+                seq.ruleDescription = hideParams ? '등차수열' : `등차수열 (공차 +${seq.d})`;
+            }
+            else if (seq.type === 'geometric') {
                 const possibleRatios = currentStage >= 6 ? [2, 2, 3, 4] : [2, 2, 3];
                 seq.r = possibleRatios[Math.floor(Math.random() * possibleRatios.length)];
-                const start = Math.floor(Math.random() * (currentStage >= 5 ? 3 : 2)) + 1;
+                let start = Math.floor(Math.random() * (currentStage >= 5 ? 3 : 2)) + 1;
+                // 스테이지 후반에 숫자가 수만 단위로 폭주하지 않도록 최종 항을 제한
+                while (start * Math.pow(seq.r, maxGatesCount + 1) > 5000 && (seq.r > 2 || start > 1)) {
+                    if (start > 1) start--;
+                    else seq.r--;
+                }
                 setSequenceWindow(seq, [start, start * seq.r, start * seq.r * seq.r], start * seq.r * seq.r * seq.r);
-                seq.ruleDescription = `등비수열 (공비 ×${seq.r})`;
-            } 
-            else {
-                seq.type = 'subtraction';
+                seq.ruleDescription = hideParams ? '등비수열' : `등비수열 (공비 ×${seq.r})`;
+            }
+            else if (seq.type === 'subtraction') {
                 const possibleDiffs = currentStage >= 5 ? [2, 3, 4, 5, 6, 7] : [2, 3, 4, 5];
                 seq.d = possibleDiffs[Math.floor(Math.random() * possibleDiffs.length)];
                 const start = seq.d * (maxGatesCount + 4) + Math.floor(Math.random() * 4) * seq.d;
                 setSequenceWindow(seq, [start, start - seq.d, start - seq.d * 2], start - seq.d * 3);
-                seq.ruleDescription = `등차수열 (공차 -${seq.d})`;
+                seq.ruleDescription = hideParams ? '등차수열' : `등차수열 (공차 -${seq.d})`;
+            }
+            else if (seq.type === 'stepped') {
+                // 계차수열: 항 사이의 차이가 매번 inc만큼 커진다
+                const firstDiff = 2 + Math.floor(Math.random() * 3);
+                seq.inc = 1 + Math.floor(Math.random() * 2);
+                const start = 1 + Math.floor(Math.random() * 5);
+                const v2 = start + firstDiff;
+                const v3 = v2 + firstDiff + seq.inc;
+                seq.d = firstDiff + seq.inc * 2; // targetValue를 만들 차이값
+                setSequenceWindow(seq, [start, v2, v3], v3 + seq.d);
+                seq.ruleDescription = '계차수열 (차이가 점점 커짐)';
+            }
+            else {
+                // 피보나치형: 앞 두 항의 합
+                const a = 1 + Math.floor(Math.random() * 3);
+                const b = a + Math.floor(Math.random() * 3);
+                setSequenceWindow(seq, [a, b, a + b], b + (a + b));
+                seq.ruleDescription = '피보나치 (앞 두 항의 합)';
             }
 
             sequence = seq;
@@ -1550,18 +1612,40 @@
                 seq.targetValue = seq.currentValue + seq.d;
             } else if (seq.type === 'geometric') {
                 seq.targetValue = seq.currentValue * seq.r;
-            } else {
+            } else if (seq.type === 'subtraction') {
                 seq.targetValue = Math.max(0, seq.currentValue - seq.d);
+            } else if (seq.type === 'stepped') {
+                seq.d += seq.inc;
+                seq.targetValue = seq.currentValue + seq.d;
+            } else {
+                // fibonacci: history의 마지막 두 항의 합
+                const len = seq.history.length;
+                seq.targetValue = seq.history[len - 1] + seq.history[len - 2];
             }
 
+            seq.displayMode = 'next';
             seq.gatePassedCount++;
             updateHud();
         }
 
         function updateHud() {
-            document.getElementById('seq-rule').innerText = sequence.ruleDescription;
+            document.getElementById('seq-rule').innerText = sequence.ruleDescription || '수열 규칙';
             document.getElementById('seq-target').innerText = '?';
-            document.getElementById('seq-history').innerText = sequence.history.join(' → ') + ' → ?';
+            const historyText = sequence.displayMode === 'mid'
+                ? `${sequence.currentValue} → ? → ${sequence.midC}`
+                : sequence.history.join(' → ') + ' → ?';
+            document.getElementById('seq-history').innerText = historyText;
+
+            const comboSep = document.getElementById('combo-sep');
+            const comboDisplay = document.getElementById('combo-display');
+            if (comboCount >= 2) {
+                comboDisplay.innerText = `COMBO x${comboCount}`;
+                comboDisplay.classList.remove('hidden');
+                comboSep.classList.remove('hidden');
+            } else {
+                comboDisplay.classList.add('hidden');
+                comboSep.classList.add('hidden');
+            }
             document.getElementById('gold-display').innerHTML = `<i class="fa-solid fa-coins mr-1"></i>${saveGold}`;
             document.getElementById('progress-bar').style.width = `${(sequence.gatePassedCount / sequence.maxGates) * 100}%`;
             document.getElementById('army-size-text').innerText = `ARMY: ${army.length}`;
@@ -1571,35 +1655,79 @@
         }
 
         // --- MULTI-CHOICE GATES CREATION ---
-        function createDecoyValues(target, count) {
-            const decoys = [];
-            const used = new Set([target]);
-            const offsets = [1, -1, 2, -2, 3, -3, 4, -4, 5, -5, 6, -6];
+        // 미끼는 "계산을 실수했을 때 나오는 값" 위주로 만든다.
+        // 정답±1처럼 홀짝만 봐도 걸러지는 값은 쓰지 않는다.
+        function createDecoyValues(seq, count) {
+            const target = seq.targetValue;
+            const used = new Set([target, ...(seq.history || [])]);
+            if (seq.displayMode === 'mid' && seq.midC) used.add(seq.midC); // 화면에 보이는 값 제외
+            const candidates = [];
 
-            for (const offset of offsets) {
+            if (seq.type === 'arithmetic') {
+                candidates.push(target + seq.d, target - seq.d, target + 2, target - 2, target + seq.d * 2);
+            } else if (seq.type === 'subtraction') {
+                candidates.push(target - seq.d, target + seq.d, target + 2, target - 2, target - seq.d * 2);
+            } else if (seq.type === 'geometric') {
+                candidates.push(
+                    seq.currentValue * (seq.r + 1),
+                    seq.currentValue * (seq.r - 1),
+                    target + seq.r, target - seq.r,
+                    target + 2, target - 2
+                );
+            } else if (seq.type === 'stepped') {
+                candidates.push(
+                    seq.currentValue + (seq.d - seq.inc), // 차이가 커지는 걸 잊었을 때
+                    seq.currentValue + (seq.d + seq.inc),
+                    target + 2, target - 2
+                );
+            } else {
+                // fibonacci
+                candidates.push(seq.currentValue * 2, target + 2, target - 2, seq.currentValue + 2);
+            }
+
+            for (let i = candidates.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [candidates[i], candidates[j]] = [candidates[j], candidates[i]];
+            }
+
+            const decoys = [];
+            for (const candidate of candidates) {
                 if (decoys.length >= count) break;
-                const candidate = Math.max(0, target + offset);
-                if (used.has(candidate)) continue;
+                if (!Number.isInteger(candidate) || candidate < 0 || used.has(candidate)) continue;
                 used.add(candidate);
                 decoys.push(candidate);
             }
 
-            let fallback = 0;
+            // 후보가 모자라면 정답과 홀짝이 같은 값으로 채운다
+            let offset = 4;
             while (decoys.length < count) {
-                if (!used.has(fallback)) {
-                    used.add(fallback);
-                    decoys.push(fallback);
+                for (const candidate of [target + offset, target - offset]) {
+                    if (decoys.length >= count) break;
+                    if (candidate >= 0 && !used.has(candidate)) {
+                        used.add(candidate);
+                        decoys.push(candidate);
+                    }
                 }
-                fallback++;
+                offset += 2;
             }
 
             return decoys;
         }
 
         function spawnGates() {
-            const target = sequence.targetValue;
+            const seq = sequence;
+            // 3스테이지부터는 일부 관문에서 "가운데 항"을 가린다 (정답 자체는 동일)
+            const midC = nextTermOf(seq, seq.targetValue);
+            const canUseMid = currentStage >= 3
+                && (seq.type === 'arithmetic' || seq.type === 'geometric' || seq.type === 'subtraction')
+                && midC > 0;
+            seq.displayMode = canUseMid && Math.random() < 0.35 ? 'mid' : 'next';
+            seq.midC = midC;
+            updateHud();
+
+            const target = seq.targetValue;
             const lanesCount = currentStage >= 3 ? 3 : 2;
-            const lanes = createDecoyValues(target, lanesCount - 1).map(decoy => ({
+            const lanes = createDecoyValues(seq, lanesCount - 1).map(decoy => ({
                 value: decoy,
                 isCorrect: false,
                 effect: getRandomGateEffect(false)
@@ -1646,7 +1774,7 @@
                 problem.classList.add('text-2xl', 'md:text-3xl', 'text-amber-200');
                 text.classList.add('hidden');
             } else {
-                label.innerText = '관문 투입';
+                label.innerText = '곧 시작';
                 problem.classList.add('hidden');
                 text.innerText = Math.max(1, Math.ceil(gateCountdownRemainingMs / GATE_COUNTDOWN_STEP_MS));
                 text.classList.remove('hidden');
@@ -1680,34 +1808,29 @@
                 const rand = Math.random();
 
                 if (currentArmyCount >= MAX_ARMY_CAP) {
-                    return { type: 'WEAPON_UP', value: 1, desc: `WEAPON UP ⚡` };
+                    return { type: 'WEAPON_UP', value: 1 };
                 }
                 else if (currentArmyCount >= ARMY_WEAPON_BIAS_THRESHOLD) {
                     if (rand < 0.86) {
-                        return { type: 'WEAPON_UP', value: 1, desc: `WEAPON UP ⚡` };
+                        return { type: 'WEAPON_UP', value: 1 };
                     } else {
-                        const val = Math.floor(Math.random() * 3) + 2;
-                        return { type: 'SQUAD_ADD', value: val, desc: `SQUAD +${val} 🛡️` };
+                        return { type: 'SQUAD_ADD', value: Math.floor(Math.random() * 3) + 2 };
                     }
-                } 
+                }
                 else {
                     if (rand < 0.40) {
                         const val = Math.min(25, Math.floor(sequence.targetValue * 0.5) + 4);
-                        return { type: 'SQUAD_ADD', value: val, desc: `SQUAD +${val} 🛡️` };
+                        return { type: 'SQUAD_ADD', value: val };
                     } else if (rand < 0.75) {
-                        return { type: 'WEAPON_UP', value: 1, desc: `WEAPON UP ⚡` };
+                        return { type: 'WEAPON_UP', value: 1 };
                     } else {
-                        return { type: 'SQUAD_MULTIPLY', value: 1.3, desc: `SQUAD x1.3 🔥` };
+                        return { type: 'SQUAD_MULTIPLY', value: 1.3 };
                     }
                 }
-            } else {
-                const rand = Math.random();
-                if (rand < 0.6) {
-                    return { type: 'SQUAD_SUB', value: 0.4, desc: `SQUAD -40% 💀` };
-                } else {
-                    return { type: 'WEAPON_DOWN', value: 1, desc: `WEAPON DOWN 🔻` };
-                }
             }
+            return Math.random() < 0.6
+                ? { type: 'SQUAD_SUB', value: 0.4 }
+                : { type: 'WEAPON_DOWN', value: 1 };
         }
 
         function spawnSparks(x, y, color) {
@@ -1804,46 +1927,12 @@
             document.getElementById('boss-hp-text').innerText = `HP: ${Math.max(0, Math.floor(boss.hp))} / ${boss.maxHp}`;
         }
 
-        function resetCampaignProgress() {
-            saveGold = 0;
-            currentStage = 1;
-            upgradeLevels = {
-                startUnit: 0,
-                fireRate: 0,
-                goldGain: 0
-            };
-            weaponLevel = 1;
-            commanderFireTimer = 0;
-            army = [];
-            bullets = [];
-            bossBullets = [];
-            particles = [];
-            popupTexts = [];
-            activeGates = null;
-            pendingGateDrop = false;
-            gateCountdownRemainingMs = 0;
-            gateCountdownLastTick = 0;
-            hideGateCountdown();
-            isDragging = false;
-            resetBossState();
-            boss.hp = 300;
-            boss.maxHp = 300;
-            updateHud();
-            renderShopStats();
-        }
-
         function returnToMenuFromResult() {
             document.getElementById('result-screen').classList.add('hidden');
             document.getElementById('menu-screen').classList.remove('hidden');
             gameState = 'MENU';
-
-            if (resetProgressAfterEnding) {
-                resetProgressAfterEnding = false;
-                resetCampaignProgress();
-            } else {
-                updateHud();
-                renderShopStats();
-            }
+            updateHud();
+            renderShopStats();
         }
 
         function endStage(won) {
@@ -1860,54 +1949,52 @@
             const title = document.getElementById('result-title');
             const desc = document.getElementById('result-desc');
             const actionBtn = document.getElementById('result-action-btn');
-            resetProgressAfterEnding = false;
-            
+
             if (won) {
                 scr.classList.add('result-victory');
                 scr.classList.remove('result-defeat');
                 actionBtn.dataset.action = 'menu';
-                const clearedStage = currentStage;
-                const isFinalStageVictory = clearedStage >= TOTAL_ROUNDS;
+                const isFinalStageVictory = currentStage >= TOTAL_ROUNDS;
                 const baseReward = 100 + currentStage * 40;
                 const armyBonus = Math.floor(army.length * 1.8);
                 const goldMultiplier = 1 + upgradeLevels.goldGain * 0.25;
                 const earnedGold = Math.floor((baseReward + armyBonus) * goldMultiplier);
-                
+
                 saveGold += earnedGold;
-                
+
                 if (isFinalStageVictory) {
+                    // 엔딩: 업그레이드와 골드는 유지한 채 1스테이지부터 다시
                     currentStage = 1;
-                    resetProgressAfterEnding = true;
                     iconCont.innerHTML = `<i class="fa-solid fa-crown text-6xl text-yellow-300 animate-bounce"></i>`;
-                    title.innerText = "SEQUENCE MASTER";
+                    title.innerText = "ALL CLEAR";
                     title.className = "font-orbitron text-4xl font-black text-yellow-300 mb-2 tracking-wide uppercase";
-                    desc.innerText = `모든 ${TOTAL_ROUNDS}개 라운드 클리어! 당신은 수열 마스터입니다.`;
-                    actionBtn.innerText = "엔딩 완료! 메뉴로";
+                    desc.innerText = `${TOTAL_ROUNDS}개 스테이지를 모두 클리어했습니다! 업그레이드를 유지한 채 처음부터 다시 도전할 수 있습니다.`;
+                    actionBtn.innerText = "메뉴로";
                 } else {
                     currentStage++;
                     iconCont.innerHTML = `<i class="fa-solid fa-trophy text-6xl text-yellow-400 animate-bounce"></i>`;
                     title.innerText = "VICTORY";
                     title.className = "font-orbitron text-4xl font-black text-[#39ff14] mb-2 tracking-wide uppercase neon-text-green";
-                    desc.innerText = `작전 구역의 거대 위협 요소를 격퇴했습니다!`;
-                    actionBtn.innerText = "다음 작전지로";
+                    desc.innerText = "보스 격파! 다음 스테이지가 열렸습니다.";
+                    actionBtn.innerText = "다음 스테이지";
                 }
 
                 document.getElementById('reward-gold').innerHTML = `<i class="fa-solid fa-coins mr-1"></i>+${earnedGold}`;
-                document.getElementById('final-army-size').innerText = `${army.length}명 전투원 복귀`;
+                document.getElementById('final-army-size').innerText = `${army.length}명`;
             } else {
                 scr.classList.add('result-defeat');
                 scr.classList.remove('result-victory');
                 actionBtn.dataset.action = 'retry';
-                resetCampaignProgress();
                 iconCont.innerHTML = `<i class="fa-solid fa-skull-crossbones text-6xl text-red-500 animate-pulse"></i>`;
                 title.innerText = "DEFEAT";
                 title.className = "font-orbitron text-4xl font-black text-red-500 mb-2 tracking-wide uppercase";
-                desc.innerText = "아군 방어선이 함락되었습니다. 골드와 강화가 초기화되고 1단계부터 재시작합니다.";
+                desc.innerText = "부대가 전멸했습니다. 골드와 업그레이드는 그대로니 다시 도전하세요.";
                 document.getElementById('reward-gold').innerHTML = `<i class="fa-solid fa-coins mr-1"></i>+0`;
-                document.getElementById('final-army-size').innerText = `새 원정 준비`;
-                actionBtn.innerText = "새로 재도전";
+                document.getElementById('final-army-size').innerText = `0명`;
+                actionBtn.innerText = "다시 도전";
             }
-            
+
+            saveProgress();
             updateHud();
             scr.classList.remove('hidden');
         }
@@ -1915,18 +2002,18 @@
         function renderShopStats() {
             const currentUnits = 5 + upgradeLevels.startUnit * 3;
             const costUnits = 100 + upgradeLevels.startUnit * 60;
-            document.getElementById('desc-start-unit').innerText = `현재 시작 인원: ${currentUnits}명`;
+            document.getElementById('desc-start-unit').innerText = `시작 병력: ${currentUnits}명`;
             document.getElementById('cost-start-unit').innerHTML = `<i class="fa-solid fa-coins mr-0.5"></i> ${costUnits}`;
 
             const rawRate = 0.45 - upgradeLevels.fireRate * 0.05;
             const viewRate = rawRate.toFixed(2);
             const costFire = 150 + upgradeLevels.fireRate * 100;
-            document.getElementById('desc-fire-rate').innerText = `현재 탄막 연사: ${viewRate}초`;
+            document.getElementById('desc-fire-rate').innerText = `발사 간격: ${viewRate}초`;
             document.getElementById('cost-fire-rate').innerHTML = `<i class="fa-solid fa-coins mr-0.5"></i> ${costFire}`;
 
             const goldMult = 1 + upgradeLevels.goldGain * 0.25;
             const costGold = 200 + upgradeLevels.goldGain * 120;
-            document.getElementById('desc-gold-gain').innerText = `현재 골드 배율: x${goldMult.toFixed(2)}`;
+            document.getElementById('desc-gold-gain').innerText = `획득 배율: x${goldMult.toFixed(2)}`;
             document.getElementById('cost-gold-gain').innerHTML = `<i class="fa-solid fa-coins mr-0.5"></i> ${costGold}`;
 
             document.getElementById('shop-gold').innerHTML = `<i class="fa-solid fa-coins mr-1"></i>${saveGold}`;
@@ -1938,6 +2025,7 @@
                 saveGold -= cost;
                 upgradeLevels.startUnit++;
                 audio.playUpgrade();
+                saveProgress();
                 renderShopStats();
                 updateHud();
             } else {
@@ -1955,6 +2043,7 @@
                 saveGold -= cost;
                 upgradeLevels.fireRate++;
                 audio.playUpgrade();
+                saveProgress();
                 renderShopStats();
                 updateHud();
             } else {
@@ -1968,6 +2057,7 @@
                 saveGold -= cost;
                 upgradeLevels.goldGain++;
                 audio.playUpgrade();
+                saveProgress();
                 renderShopStats();
                 updateHud();
             } else {
@@ -1977,7 +2067,7 @@
 
         function startStageRuntime() {
             audio.init();
-            
+
             gameState = 'RUNNING';
             bullets = [];
             bossBullets = [];
@@ -1990,8 +2080,11 @@
             gateCountdownLastTick = 0;
             hideGateCountdown();
             isDragging = false;
-            weaponLevel = 1; 
+            weaponLevel = 1;
             shakeTimer = 0;
+            comboCount = 0;
+            pausedFromState = null;
+            setPauseIcon(false);
             resetBossState();
 
             document.getElementById('hud-sequence-section').classList.remove('hidden');
@@ -2065,6 +2158,31 @@
             } else if (event.key === 'ArrowRight' || event.key.toLowerCase() === 'd') {
                 setCommanderTargetX(commander.targetX + keyStep);
                 event.preventDefault();
+            }
+        });
+
+        // 일시정지: RUNNING / BOSS_BATTLE 중에만 동작
+        let pausedFromState = null;
+        const pauseBtn = document.getElementById('hud-pause');
+
+        function setPauseIcon(paused) {
+            pauseBtn.innerHTML = paused
+                ? '<i class="fa-solid fa-play text-xs"></i>'
+                : '<i class="fa-solid fa-pause text-xs"></i>';
+        }
+
+        pauseBtn.addEventListener('click', () => {
+            if (gameState === 'PAUSED') {
+                gameState = pausedFromState || 'RUNNING';
+                pausedFromState = null;
+                gateCountdownLastTick = performance.now(); // 정지한 시간만큼 카운트다운이 튀지 않게 보정
+                setPauseIcon(false);
+            } else if (gameState === 'RUNNING' || gameState === 'BOSS_BATTLE') {
+                pausedFromState = gameState;
+                gameState = 'PAUSED';
+                shakeTimer = 0;
+                document.getElementById('game-container').classList.remove('shake-screen');
+                setPauseIcon(true);
             }
         });
 
@@ -2148,14 +2266,22 @@
 
                             if (chosenGate.effect.type === 'SQUAD_ADD') {
                                 addSoldiers(chosenGate.effect.value, { showPopup: true });
-                            } 
+                            }
                             else if (chosenGate.effect.type === 'WEAPON_UP') {
                                 weaponLevel = Math.min(weaponLevel + 1, 5);
-                                spawnPopupText(commander.x, commander.y - 54, `WEAPON UP! LV.${weaponLevel} ⚡`, '#00f0ff', 'reward');
-                            } 
+                                spawnPopupText(commander.x, commander.y - 54, `WEAPON UP LV.${weaponLevel}`, '#00f0ff', 'reward');
+                            }
                             else if (chosenGate.effect.type === 'SQUAD_MULTIPLY') {
                                 const addCount = Math.floor(army.length * (chosenGate.effect.value - 1));
                                 addSoldiers(addCount, { showPopup: true });
+                            }
+
+                            // 연속 정답 콤보: 2연속부터 골드 보너스
+                            comboCount++;
+                            if (comboCount >= 2) {
+                                const comboGold = comboCount * 3;
+                                saveGold += comboGold;
+                                spawnPopupText(commander.x, commander.y - 88, `COMBO x${comboCount}  +${comboGold}G`, '#facc15', 'reward');
                             }
 
                             advanceSequence();
@@ -2169,15 +2295,16 @@
                         } else {
                             audio.playGateWrong();
                             spawnSparks(commander.x, commander.y, '#ff007f');
+                            comboCount = 0;
 
                             if (chosenGate.effect.type === 'SQUAD_SUB') {
                                 const beforeSize = army.length;
                                 removeSoldiers(0.5);
                                 const lost = beforeSize - army.length;
-                                spawnPopupText(commander.x, commander.y - 54, `-${lost} SQUAD LOST 💀`, '#ff335f', 'penalty');
+                                spawnPopupText(commander.x, commander.y - 54, `SQUAD -${lost}`, '#ff335f', 'penalty');
                             } else {
                                 weaponLevel = Math.max(weaponLevel - 1, 1);
-                                spawnPopupText(commander.x, commander.y - 54, `WEAPON DOWN! LV.${weaponLevel} 🔻`, '#ff335f', 'penalty');
+                                spawnPopupText(commander.x, commander.y - 54, `WEAPON DOWN LV.${weaponLevel}`, '#ff335f', 'penalty');
                             }
 
                             advanceSequence();
@@ -2567,7 +2694,7 @@
 
             // 1. 이지선다/삼지선다 관문 렌더링
             if (gameState === 'RUNNING' && activeGates) {
-                const gateH = 50;
+                const gateH = 56;
                 const lanesNum = activeGates.lanes.length;
                 const laneW = canvas.width / lanesNum;
 
@@ -2596,29 +2723,29 @@
                     }
                     ctx.stroke();
 
-                    // 숫자 표시 (직접 계산하여 연산 돌파)
+                    // 숫자 표시 — 굵은 외곽선 텍스트, 관문이 가까워질수록 커진다
                     const valueText = Number(lane.value).toLocaleString('ko-KR');
                     const textLen = valueText.length;
-                    const fontSize = textLen >= 7 ? 14 : textLen >= 5 ? 16 : textLen >= 4 ? 18 : 20;
-                    const labelW = Math.min(gw - 20, Math.max(58, textLen * (fontSize * 0.62) + 18));
-                    const labelH = 30;
-                    const labelX = gx + (gw - labelW) / 2;
-                    const labelY = activeGates.y + (gateH - labelH) / 2;
+                    const proximity = 0.72 + clamp(activeGates.y / Math.max(1, commander.y), 0, 1) * 0.5;
+                    let fontSize = clamp(gw * 0.36, 22, 46);
+                    if (textLen >= 7) fontSize *= 0.6;
+                    else if (textLen >= 5) fontSize *= 0.78;
+                    fontSize = Math.round(fontSize * proximity);
 
-                    ctx.shadowBlur = 0;
-                    ctx.fillStyle = 'rgba(15, 23, 42, 0.72)';
-                    ctx.fillRect(labelX, labelY, labelW, labelH);
-                    ctx.strokeStyle = 'rgba(251, 191, 36, 0.62)';
-                    ctx.lineWidth = 1.8;
-                    ctx.strokeRect(labelX, labelY, labelW, labelH);
-
-                    ctx.fillStyle = '#f8fafc';
-                    ctx.shadowColor = 'rgba(0, 0, 0, 0.35)';
-                    ctx.shadowBlur = 3;
+                    const textX = gx + gw / 2;
+                    const textY = activeGates.y + gateH / 2 + 1;
                     ctx.font = `900 ${fontSize}px "Orbitron", sans-serif`;
                     ctx.textAlign = 'center';
                     ctx.textBaseline = 'middle';
-                    ctx.fillText(valueText, gx + gw/2, activeGates.y + gateH/2 + 0.5);
+                    ctx.lineJoin = 'round';
+                    ctx.shadowColor = 'rgba(0, 0, 0, 0.9)';
+                    ctx.shadowBlur = 10;
+                    ctx.strokeStyle = '#0c0a09';
+                    ctx.lineWidth = Math.max(4, fontSize * 0.18);
+                    ctx.strokeText(valueText, textX, textY);
+                    ctx.shadowBlur = 0;
+                    ctx.fillStyle = '#ffffff';
+                    ctx.fillText(valueText, textX, textY);
 
                     ctx.restore();
                 });
@@ -2663,7 +2790,7 @@
                     ctx.fillStyle = '#fff7ed';
                     ctx.font = '900 14px "Orbitron", "Noto Sans KR", sans-serif';
                     ctx.textAlign = 'center';
-                    ctx.fillText("⚠️ 방어선 200px 내 접근 · 화력 집중!", canvas.width / 2, 80 + tremor * 0.2);
+                    ctx.fillText("보스가 방어선에 접근 중!", canvas.width / 2, 80 + tremor * 0.2);
                     ctx.restore();
                 }
 
@@ -2962,6 +3089,21 @@
                 ctx.fillText(pt.text, drawX, pt.y + 1);
                 ctx.restore();
             });
+
+            // 8. 일시정지 오버레이
+            if (gameState === 'PAUSED') {
+                ctx.save();
+                ctx.fillStyle = 'rgba(0, 0, 0, 0.58)';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                ctx.textAlign = 'center';
+                ctx.fillStyle = '#f8fafc';
+                ctx.font = '900 32px "Orbitron", sans-serif';
+                ctx.fillText('PAUSED', canvas.width / 2, canvas.height / 2 - 12);
+                ctx.fillStyle = '#d6d3d1';
+                ctx.font = '700 13px "Noto Sans KR", sans-serif';
+                ctx.fillText('▶ 버튼을 누르면 계속됩니다', canvas.width / 2, canvas.height / 2 + 18);
+                ctx.restore();
+            }
         }
 
         // main tick loop
@@ -2972,6 +3114,7 @@
         }
 
         window.onload = function() {
+            loadProgress();
             resizeCanvas();
             renderShopStats();
             updateHud();
