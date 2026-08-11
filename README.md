@@ -27,6 +27,12 @@ GitHub Pages에 올리는 경우에는 이 저장소의 모든 파일을 같은 
 - 패배해도 골드와 업그레이드는 유지되며, 같은 스테이지에 다시 도전할 수 있습니다.
 - 진행 상황(골드, 스테이지, 업그레이드, 최고 기록/정답률/최다 콤보)은 브라우저에 자동 저장됩니다.
 
+## 웹앱 설치 (PWA)
+
+HTTPS로 배포하면 브라우저의 "홈 화면에 추가"로 앱처럼 설치할 수 있습니다.
+한 번 접속한 뒤에는 오프라인에서도 실행됩니다.
+`sw.js`의 자산이 바뀌는 배포를 할 때는 파일 상단의 `CACHE_NAME` 버전을 올려주세요.
+
 ## 파일 구성
 
 외부 CDN 의존이 없어 인터넷 연결 없이도 동작합니다.
@@ -35,7 +41,10 @@ GitHub Pages에 올리는 경우에는 이 저장소의 모든 파일을 같은 
 - `index.html` — 마크업
 - `styles.css` — 스타일
 - `game.js` — 게임 로직
+- `sw.js` — 서비스 워커 (오프라인 캐시)
+- `manifest.webmanifest` — 웹앱 매니페스트
 - `orbitron.woff2` — 숫자/영문 폰트
+- `icon-192.png`, `icon-512.png`, `icon-maskable-512.png`, `apple-touch-icon.png` — 앱 아이콘
 - `background.jpg`
 - `commander.png`
 - `soldier.png`
