@@ -899,6 +899,25 @@ document.getElementById('alert-close').addEventListener('click', () => {
     document.getElementById('custom-alert').classList.remove('show');
 });
 
+// 진행 초기화 — 새 빌드로 처음부터. 최고 기록/정답률/최다 콤보는 남긴다.
+document.getElementById('reset-progress-btn').addEventListener('click', () => {
+    document.getElementById('reset-confirm').classList.add('show');
+});
+document.getElementById('reset-confirm-no').addEventListener('click', () => {
+    document.getElementById('reset-confirm').classList.remove('show');
+});
+document.getElementById('reset-confirm-yes').addEventListener('click', () => {
+    saveGold = 0;
+    currentStage = 1;
+    upgradeLevels = { startUnit: 0, fireRate: 0, goldGain: 0 };
+    saveProgress();
+    renderShopStats();
+    renderStatsPanel();
+    updateHud();
+    document.getElementById('reset-confirm').classList.remove('show');
+    audio.playUpgrade();
+});
+
 // 이미지 회전 그리기 헬퍼 함수
 function drawRotatedImage(img, x, y, w, h, angle) {
     const drawable = getDrawableAsset(img);

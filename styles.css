@@ -553,6 +553,20 @@ button:active {
     color: #6b7280;
 }
 
+.btn-ghost {
+    margin-top: 2px;
+    padding: 6px;
+    font-size: 11px;
+    color: #78716c;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    transition: color 0.15s;
+}
+
+.btn-ghost:hover {
+    color: #d6d3d1;
+}
+
 /* ---------- 결과 화면 ---------- */
 
 .result-icon {
@@ -862,6 +876,44 @@ button:active {
 
 .btn-alert:hover {
     background: #ec4899;
+}
+
+/* 진행 초기화 확인 모달 변형 */
+.modal-card-warn {
+    background: #1c1210;
+    border-color: var(--amber);
+    box-shadow: 0 0 20px rgba(245, 158, 11, 0.35);
+}
+
+.modal-icon-warn {
+    background: radial-gradient(circle at 35% 30%, #fca5a5, #b91c1c 78%);
+    color: #fff;
+    box-shadow: 0 0 14px rgba(239, 68, 68, 0.5);
+}
+
+.modal-actions {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+}
+
+.btn-danger {
+    padding: 10px 16px;
+    background: #b91c1c;
+    color: #fff;
+    font-weight: 700;
+    font-size: 12px;
+    border-radius: 8px;
+    transition: background 0.15s;
+}
+
+.btn-danger:hover {
+    background: #dc2626;
+}
+
+.modal-actions .btn-secondary {
+    padding: 10px 16px;
+    font-size: 12px;
 }
 
 /* ---------- 애니메이션 ---------- */
