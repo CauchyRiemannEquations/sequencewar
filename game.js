@@ -283,10 +283,6 @@ const COMMANDER_BULLET_COLOR = '#a3e635';
 const GATE_RULE_READ_MS = 3000;
 const GATE_COUNTDOWN_STEP_MS = 1000;
 const GATE_COUNTDOWN_TOTAL_MS = GATE_RULE_READ_MS + GATE_COUNTDOWN_STEP_MS * 3;
-const BOSS_GATE_INTERVAL = 8;       // 보스전 정답 블록 스폰 주기 (초)
-const BOSS_GATE_FIRST_DELAY = 4.5;  // 보스전 첫 블록까지의 대기 (초)
-const BOSS_BLOCK_FALL_MULT = 0.4;   // 블록은 관문보다 천천히 내려온다 (부술 시간 확보)
-const BOSS_BLOCK_MISS_RETRY = 3;    // 블록을 놓쳤을 때 다음 스폰까지의 대기 (초)
 
 const bossRenderProfiles = {
     1: { widthMul: 4.05, heightMul: 4.05, glow: '#84cc16' },
@@ -793,8 +789,6 @@ let frameCount = 0;
 let shakeTimer = 0;
 let comboCount = 0;      // 연속 정답 수
 let shieldCharges = 0;   // 보스전에서 피탄 1회를 막아주는 실드
-let bossGateTimer = 0;   // 보스전 정답 블록 스폰 타이머 (초)
-let bossHintShown = false; // 보스전 사격 안내를 스테이지당 한 번만
 
 // Background scroll offset for "배경.jpg"
 let bgScrollY = 0;
@@ -1417,63 +1411,6 @@ function spawnGates() {
     };
 }
 
-// 보스전용 정답 블록: 일반 관문과 같은 구조에 HP를 붙여 사격으로 부수게 한다
-function spawnBossBlocks() {
-    spawnGates();
-    activeGates.destructible = true;
-    const blockHp = Math.round(26 + currentStage * 9 + army.length * 0.9);
-    activeGates.lanes.forEach(lane => {
-        lane.maxHp = blockHp;
-        lane.hp = blockHp;
-        lane.broken = false;
-    });
-    if (!bossHintShown) {
-        bossHintShown = true;
-        spawnPopupText(canvas.width / 2, canvas.height * 0.34, '정답 숫자를 쏴서 부수세요!', '#fbbf24', 'info');
-    }
-}
-
-// 블록 파괴 결과 처리 — 스테이지가 끝나면 true 반환
-function resolveBossBlockBreak(lane) {
-    const correctAnswer = sequence.targetValue;
-    audio.playExplode();
-    activeGates = null;
-
-    if (lane.isCorrect) {
-        handleCorrectAnswer();
-        const volleyDamage = Math.floor(boss.maxHp * 0.055 + 30);
-        boss.hp -= volleyDamage;
-        spawnSparks(boss.x, boss.y + boss.radius, '#a3e635');
-        spawnPopupText(boss.x, boss.y + boss.radius + 42, `일제사격!  -${volleyDamage.toLocaleString('ko-KR')}`, '#a3e635', 'reward');
-        triggerScreenShake(8);
-        updateBossHpBar();
-        advanceSequence();
-
-        if (boss.hp <= 0) {
-            boss.active = false;
-            spawnSparks(boss.x, boss.y, '#39ff14');
-            triggerScreenShake(30);
-            endStage(true);
-            return true;
-        }
-    } else {
-        handleWrongAnswer(correctAnswer);
-        const beforeSize = army.length;
-        removeSoldiers(0.2);
-        const lost = beforeSize - army.length;
-        if (lost > 0) {
-            spawnPopupText(commander.x, commander.y - 54, `SQUAD -${lost}`, '#ff335f', 'penalty');
-        }
-        advanceSequence();
-
-        if (army.length <= 0) {
-            endStage(false);
-            return true;
-        }
-    }
-    return false;
-}
-
 function hideGateCountdown() {
     const banner = document.getElementById('gate-countdown-banner');
     banner.classList.remove('scale-100');
@@ -1603,9 +1540,8 @@ function triggerBossBattle() {
     gateCountdownRemainingMs = 0;
     gateCountdownLastTick = 0;
     hideGateCountdown();
-    // 보스전에도 수열 관문이 내려오므로 수열 HUD는 계속 보여준다
-    bossGateTimer = BOSS_GATE_INTERVAL - BOSS_GATE_FIRST_DELAY;
     activeGates = null;
+    document.getElementById('hud-sequence-section').classList.add('hidden');
 
     const banner = document.getElementById('boss-warning-banner');
     banner.classList.remove('scale-0');
@@ -1829,8 +1765,6 @@ function startStageRuntime() {
     shakeTimer = 0;
     comboCount = 0;
     shieldCharges = 0;
-    bossGateTimer = 0;
-    bossHintShown = false;
     // 스테이지가 오를수록 관문이 조금씩 빨리 내려온다
     roadSpeed = 4.6 + currentStage * 0.14;
     pausedFromState = null;
@@ -2285,54 +2219,11 @@ function update() {
             }
         }
 
-        // 보스전 정답 블록: 주기적으로 숫자 블록이 내려온다.
-        // 걸어 들어가는 게 아니라 아군 사격으로 부수는 방식 —
-        // 정답 블록을 부수면 일제사격, 오답 블록을 부수면 병력 손실.
-        if (bossCanAttack) {
-            bossGateTimer += 0.016;
-            if (!activeGates && bossGateTimer >= BOSS_GATE_INTERVAL) {
-                bossGateTimer = 0;
-                spawnBossBlocks();
-            }
-        }
-
-        if (activeGates) {
-            activeGates.y += roadSpeed * getPlayfieldSpeedScale() * BOSS_BLOCK_FALL_MULT * getGateFallMultiplier();
-
-            // 부수지 못하고 방어선까지 내려오면 소멸 (페널티 없음, 곧 재출제)
-            if (activeGates.y >= commander.y - 60) {
-                spawnPopupText(canvas.width / 2, activeGates.y - 20, 'MISS', '#9ca3af', 'neutral');
-                activeGates = null;
-                bossGateTimer = BOSS_GATE_INTERVAL - BOSS_BLOCK_MISS_RETRY;
-            }
-        }
-
         // 아군 총알 충돌 및 보스 데미지 처리 (우리편 총알.png 사격)
         for (let i = bullets.length - 1; i >= 0; i--) {
             const b = bullets[i];
             b.x += b.vx;
             b.y += b.vy;
-
-            // 정답 블록 피격 — 블록에 맞은 총알은 보스까지 가지 못한다
-            if (activeGates && activeGates.destructible
-                && b.y <= activeGates.y + 56 && b.y >= activeGates.y - 8) {
-                const blockLaneW = canvas.width / activeGates.lanes.length;
-                const laneIdx = clamp(Math.floor(b.x / blockLaneW), 0, activeGates.lanes.length - 1);
-                const lane = activeGates.lanes[laneIdx];
-                const inLaneRect = lane && !lane.broken
-                    && b.x >= blockLaneW * laneIdx + 8
-                    && b.x <= blockLaneW * (laneIdx + 1) - 8;
-                if (inLaneRect) {
-                    lane.hp -= b.damage;
-                    bullets.splice(i, 1);
-                    spawnSparks(b.x, activeGates.y + 50, '#fbbf24');
-                    if (lane.hp <= 0) {
-                        lane.broken = true;
-                        if (resolveBossBlockBreak(lane)) return;
-                    }
-                    continue;
-                }
-            }
 
             const distToBoss = Math.hypot(b.x - boss.x, b.y - boss.y);
             const bossHitRadius = boss.radius * 1.65;
@@ -2460,7 +2351,7 @@ function draw() {
 
     // 레인 구분선
     ctx.save();
-    const gatesVisible = activeGates && (gameState === 'RUNNING' || gameState === 'BOSS_BATTLE');
+    const gatesVisible = activeGates && gameState === 'RUNNING';
     const laneCount = gatesVisible ? activeGates.lanes.length : 2;
     ctx.strokeStyle = 'rgba(245, 158, 11, 0.15)'; 
     ctx.lineWidth = 3;
@@ -2494,14 +2385,13 @@ function draw() {
     });
     ctx.globalAlpha = 1.0;
 
-    // 1. 선택 관문 렌더링 (일반 구간 + 보스전 공용)
+    // 1. 선택 관문 렌더링
     if (gatesVisible) {
         const gateH = 56;
         const lanesNum = activeGates.lanes.length;
         const laneW = canvas.width / lanesNum;
 
         activeGates.lanes.forEach((lane, i) => {
-            if (lane.broken) return;
             const gx = (laneW * i) + 8;
             const gw = laneW - 16;
 
@@ -2513,14 +2403,6 @@ function draw() {
             ctx.lineWidth = 3.5;
             ctx.fillRect(gx, activeGates.y, gw, gateH);
             ctx.strokeRect(gx, activeGates.y, gw, gateH);
-
-            // 파괴형 블록: 피해를 입을수록 붉게 달아오른다
-            if (lane.maxHp) {
-                const hpRatio = clamp(lane.hp / lane.maxHp, 0, 1);
-                ctx.shadowBlur = 0;
-                ctx.fillStyle = `rgba(239, 68, 68, ${(1 - hpRatio) * 0.32})`;
-                ctx.fillRect(gx, activeGates.y, gw, gateH);
-            }
 
             // 관문 측면 무늬
             ctx.strokeStyle = 'rgba(245, 158, 11, 0.18)';
@@ -2557,15 +2439,6 @@ function draw() {
             ctx.shadowBlur = 0;
             ctx.fillStyle = '#ffffff';
             ctx.fillText(valueText, textX, textY);
-
-            // 파괴형 블록의 남은 내구도 바
-            if (lane.maxHp) {
-                const hpRatio = clamp(lane.hp / lane.maxHp, 0, 1);
-                ctx.fillStyle = 'rgba(0, 0, 0, 0.55)';
-                ctx.fillRect(gx + 6, activeGates.y + gateH + 5, gw - 12, 5);
-                ctx.fillStyle = hpRatio > 0.45 ? '#fbbf24' : '#ef4444';
-                ctx.fillRect(gx + 6, activeGates.y + gateH + 5, (gw - 12) * hpRatio, 5);
-            }
 
             ctx.restore();
         });
